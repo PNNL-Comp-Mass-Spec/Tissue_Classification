@@ -1,12 +1,4 @@
-
-# coding: utf-8
-
-# # Post Processing of MaxQuant output (proteinGroups.txt)
-
-# ## Import Data
-
-# In[631]:
-
+## Post Processing of MaxQuant output (proteinGroups.txt)
 
 import matplotlib.pyplot as plt
 from numpy import logical_or
@@ -19,10 +11,6 @@ import seaborn as sns
 from sklearn.decomposition import PCA
 from sklearn import preprocessing
 
-
-# In[632]:
-
-
 """
 Input: Path to tab-sep text document
 Output: Pandas dataframe
@@ -30,15 +18,6 @@ Output: Pandas dataframe
 def load_df(file):
     df = pd.read_csv(file, sep='\t', lineterminator='\r', dtype={"Only identified by site": str, "Reverse": str, "Potential contaminant": str})
     return df
-
-
-# ## Clean Data
-# * Remove rows corresponding to the proteins only identified by site/Reverse/Potential contaminant
-# * Remove rows with multiple protein IDs
-# * Extract separately the LFQ and the iBAQ quantification info
-# 
-
-# In[633]:
 
 
 """
@@ -127,7 +106,7 @@ def filter_low_observed(df, groups, organ_columns, organ_counts):
 # Group columns by organ so x-axis will be sorted accordingly
 #iBAQ_df = iBAQ_df[['Majority protein IDs'] + organ_columns['Brain'] + organ_columns['Heart'] + organ_columns['Kidney'] + organ_columns['Liver'] + organ_columns['Lung']]
 
-def make_boxplot(df, title, dimensions = (10, 6)):
+def make_boxplot(df, base_dir, title, dimensions = (10, 6)):
     df.boxplot(return_type='axes', figsize = dimensions)
     plt.xticks(rotation='vertical')
     output_path = base_dir + title + '.pdf'
@@ -180,7 +159,7 @@ def map_colors(groups, organ_columns):
 # In[640]:
 
 
-def make_seaborn_boxplot(df, title, colors, dimensions = (10, 6)):
+def make_seaborn_boxplot(df, base_dir, title, colors, dimensions = (10, 6)):
 
     fig, ax = plt.subplots(figsize = dimensions)
     ax.set_xticklabels(ax.get_xticklabels(), rotation = 90)
@@ -256,7 +235,7 @@ def do_pca(df):
 #
 #########################
 
-def make_scree_plot(pca, pca_data, title):
+def make_scree_plot(pca, pca_data, base_dir):
 
     per_var = np.round(pca.explained_variance_ratio_* 100, decimals = 1)
     labels = ['PC' + str(x) for x in range(1, len(per_var)+1)]
@@ -266,14 +245,12 @@ def make_scree_plot(pca, pca_data, title):
     plt.xlabel('Principal Component')
     plt.title('Scree Plot')
     plt.xticks(rotation='vertical')
-    output_path = base_dir + title + '.pdf'
+    output_path = base_dir + 'Scree.pdf'
 
     plt.savefig(output_path, bbox_inches="tight")
     plt.clf()
-
-
-# In[644]:
-
+    
+    return(per_var, labels)
 
 #########################
 #
@@ -281,7 +258,7 @@ def make_scree_plot(pca, pca_data, title):
 #
 #########################
 
-def draw_pca_graph(df, pca_data, title, color_dict):
+def draw_pca_graph(df, pca_data, base_dir, color_dict, per_var, labels):
     
     pca_df = pd.DataFrame(pca_data, index = [df.columns.values.tolist()], columns = labels)
  
@@ -293,12 +270,9 @@ def draw_pca_graph(df, pca_data, title, color_dict):
         plt.scatter(pca_df.PC1.loc[column], pca_df.PC2.loc[column], color = color_dict[column])
         plt.annotate(column, (pca_df.PC1.loc[column], pca_df.PC2.loc[column]), color = color_dict[column])
 
-    output_path = base_dir + title + '.pdf'
+    output_path = base_dir + 'PCA.pdf'
     plt.savefig(output_path, bbox_inches="tight")
     plt.clf()
-
-
-# In[645]:
 
 
 #########################
@@ -316,20 +290,13 @@ def top_n_loading_scores(pca, df, n):
     return loading_scores[top_proteins]
 
 
-# ## Heatmaps
-# * Pearson Correlations
-# * Hierarchical Clustering
-
-# In[646]:
-
-
 #########################
 #
 # Pearson correlation of the samples compared to each other 
 #
 #########################
 
-def make_pearson_matrix(df, title, colormap = "RdBu_r", dimensions = (16, 11)):
+def make_pearson_matrix(df, base_dir, colormap = "RdBu_r", dimensions = (16, 11)):
 
     fig, ax = plt.subplots(figsize = dimensions)
     ax.set_title('Pearson Correlations', size = 20)
@@ -342,12 +309,9 @@ def make_pearson_matrix(df, title, colormap = "RdBu_r", dimensions = (16, 11)):
                 cmap = colormap, 
                 ax = ax) 
     
-    output_path = base_dir + title + '.pdf'
+    output_path = base_dir + 'Pearson_Matrix.pdf'
     plt.savefig(output_path, bbox_inches="tight")
     plt.clf()
-
-
-# In[647]:
 
 
 #########################
@@ -356,7 +320,7 @@ def make_pearson_matrix(df, title, colormap = "RdBu_r", dimensions = (16, 11)):
 #
 #########################
 
-def hierarchical_cluster(df, title, dimensions = (10, 6)):
+def hierarchical_cluster(df, base_dir, dimensions = (10, 6)):
 
     z = linkage(df.values, method='ward')
 
@@ -368,14 +332,12 @@ def hierarchical_cluster(df, title, dimensions = (10, 6)):
                #leaf_font_size=8.,  # font size for the x axis labels
               )
     
-    output_path = base_dir + title + '.pdf'
+    output_path = base_dir + 'Hierarchical_Clustering.pdf'
     plt.savefig(output_path, bbox_inches="tight")
     plt.clf()
 
 
 # ## ANOVA and t-tests
-
-# In[648]:
 
 
 def filter_proteins_by_anova(df, pval):
@@ -399,29 +361,23 @@ def filter_proteins_by_anova(df, pval):
     pass_anova_df = df[df.index.isin(pass_anova)]
     return pass_anova_df
 
-
-# In[649]:
-
-
 #########################
 #
 # Heatmap of proteins
 #
 #########################
 
-def protein_heatmap(df, title, colormap = "RdBu_r"):
+def protein_heatmap(df, base_dir, colormap = "RdBu_r"):
 
     sns.clustermap(df,
                    method = 'ward',
                    z_score = 1, # on columns
                    cmap = colormap)
 
-    output_path = base_dir + title + '.pdf'
+    output_path = base_dir + 'Proteins_Passing_ANOVA_Heatmap.pdf'
     plt.savefig(output_path, bbox_inches = "tight")
     plt.clf()
 
-
-# In[650]:
 
 
 #########################
@@ -430,8 +386,6 @@ def protein_heatmap(df, title, colormap = "RdBu_r"):
 #
 #########################
 
-
-# In[656]:
 
 
 #########################
@@ -458,7 +412,7 @@ def mq_pipeline(file, groups, image_dir):
     organ_counts = {} # 'Liver': 
     
     iBAQ_df = filter_low_observed(iBAQ_df, groups, organ_columns, organ_counts)
-    make_boxplot(iBAQ_df, 'Unnormalized Protein Abundances')
+    make_boxplot(iBAQ_df, image_dir, 'Unnormalized Protein Abundances')
     
     ### TODO: dynamically order columns
     # Group columns by organ so x-axis will be sorted accordingly
@@ -467,21 +421,21 @@ def mq_pipeline(file, groups, image_dir):
     ### Normalize and produce box plots
     log2_normalize(iBAQ_df)
     color_dict = map_colors(groups, organ_columns)
-    make_seaborn_boxplot(iBAQ_df, 'Log2 Transformed Boxplot', color_dict)
+    make_seaborn_boxplot(iBAQ_df, image_dir, 'Log2 Transformed Boxplot', color_dict)
     median_normalize(iBAQ_df)
-    make_seaborn_boxplot(iBAQ_df, 'Median Normalized Boxplot', color_dict)
+    make_seaborn_boxplot(iBAQ_df, image_dir, 'Median Normalized Boxplot', color_dict)
     
     ### PCA
     imputed_iBAQ_df = impute_missing(iBAQ_df.copy())
     pca, pca_data = do_pca(imputed_iBAQ_df)
     
-    make_scree_plot(pca, pca_data, 'Scree Plot') 
-    draw_pca_graph(imputed_iBAQ_df, pca_data, 'PCA Graph', color_dict)
-    make_pearson_matrix(imputed_iBAQ_df, 'Pearson Correlations')
-    hierarchical_cluster(imputed_iBAQ_df, 'Hierarchical Clustering')
+    per_var, labels = make_scree_plot(pca, pca_data, image_dir) 
+    draw_pca_graph(imputed_iBAQ_df, pca_data, image_dir, color_dict, per_var, labels)
+    make_pearson_matrix(imputed_iBAQ_df, image_dir)
+    hierarchical_cluster(imputed_iBAQ_df, image_dir)
     
     pval = 0.05
     pass_anova_df = filter_proteins_by_anova(imputed_iBAQ_df, pval)
-    protein_heatmap(pass_anova_df, 'Proteins Passing ANOVA Heatmap')
+    protein_heatmap(pass_anova_df, image_dir)
     
     return iBAQ_df
