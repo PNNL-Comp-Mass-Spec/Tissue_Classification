@@ -28,10 +28,6 @@ def clean_weakly_identified(df):
     df = df[(df['Only identified by site'] != '+') & (df.Reverse != '+') & (df['Potential contaminant'] != '+')]
     return df
 
-
-# In[634]:
-
-
 """
 Input: Dataframe
 Output: Dataframe where rows containing multiple protein IDs have been removed
@@ -40,9 +36,6 @@ def remove_dup_proteinIDs(df):
     single_proteinID = df['Majority protein IDs'].str.contains(';') == False
     df = df[single_proteinID]
     return df
-
-
-# In[635]:
 
 
 """
@@ -54,17 +47,6 @@ def slice_by_column(df, col_name):
     selected_col_name = col_name + ".*|Majority protein IDs"
     df_slice = df.filter(regex = selected_col_name)
     return df_slice
-
-
-# ## Normalize
-# ### For both LFQ and iBAQ:
-# * Consider only the proteins observed at least in 50 percent of the sample for at least one organ for quantification
-# * log2 normalize
-# * Median normalize: the median of the log2(LFQ or IBAQ) of each protein in a given sample is used to normalize all the protein abundance of this sample, then multiply all the resulting values by the median of the medians
-# * Impute the missing values: the minimum of the resulting table divided by 2
-# 
-
-# In[636]:
 
 
 #########################
@@ -90,10 +72,6 @@ def filter_low_observed(df, groups, organ_columns, organ_counts):
     conditions = list(organ_counts[g] >= threshold for g in groups)
     df = df[logical_or.reduce(conditions)]
     return df
-    
-
-
-# In[637]:
 
 
 #########################
@@ -114,9 +92,6 @@ def make_boxplot(df, base_dir, title, dimensions = (10, 6)):
     plt.clf()
 
 
-# In[638]:
-
-
 #########################
 #
 # log2 normalize
@@ -127,9 +102,6 @@ def log2_normalize(df):
     df.iloc[:,1:] = df.iloc[:,1:].applymap(np.log2)
     # log2(0) returns -inf; replace with NaN to avoid skewing data
     df.replace([np.inf, -np.inf], np.nan, inplace=True)
-
-
-# In[639]:
 
 
 #########################
@@ -156,9 +128,6 @@ def map_colors(groups, organ_columns):
     return color_dict
 
 
-# In[640]:
-
-
 def make_seaborn_boxplot(df, base_dir, title, colors, dimensions = (10, 6)):
 
     fig, ax = plt.subplots(figsize = dimensions)
@@ -167,9 +136,6 @@ def make_seaborn_boxplot(df, base_dir, title, colors, dimensions = (10, 6)):
     output_path = base_dir + title + '.pdf'
     plt.savefig(output_path, bbox_inches = "tight")
     plt.clf()
-
-
-# In[641]:
 
 
 #########################
@@ -187,9 +153,6 @@ def median_normalize(df):
     df.iloc[:,1:] = quants # insert processed iBAQ values into original df
 
 
-# In[642]:
-
-
 #########################
 #
 # Impute missing values
@@ -201,11 +164,6 @@ def impute_missing(df):
     impute_val = df_min/2
     df = df.fillna(impute_val)
     return df
-
-
-# ## PCA
-
-# In[643]:
 
 
 #########################
@@ -235,7 +193,7 @@ def do_pca(df):
 #
 #########################
 
-def make_scree_plot(pca, pca_data, base_dir):
+def make_scree_plot(pca, base_dir):
 
     per_var = np.round(pca.explained_variance_ratio_* 100, decimals = 1)
     labels = ['PC' + str(x) for x in range(1, len(per_var)+1)]
@@ -258,9 +216,9 @@ def make_scree_plot(pca, pca_data, base_dir):
 #
 #########################
 
-def draw_pca_graph(df, pca_data, base_dir, color_dict, per_var, labels):
+def draw_pca_graph(column_names, pca_data, base_dir, color_dict, per_var, labels):
     
-    pca_df = pd.DataFrame(pca_data, index = [df.columns.values.tolist()], columns = labels)
+    pca_df = pd.DataFrame(pca_data, index = column_names, columns = labels)
  
     plt.title('PCA Graph')
     plt.xlabel('PC1 - {0}%'.format(per_var[0]))
@@ -429,8 +387,9 @@ def mq_pipeline(file, groups, image_dir):
     imputed_iBAQ_df = impute_missing(iBAQ_df.copy())
     pca, pca_data = do_pca(imputed_iBAQ_df)
     
-    per_var, labels = make_scree_plot(pca, pca_data, image_dir) 
-    draw_pca_graph(imputed_iBAQ_df, pca_data, image_dir, color_dict, per_var, labels)
+    per_var, labels = make_scree_plot(pca, image_dir) 
+    column_names = imputed_iBAQ_df.columns.values.tolist()
+    draw_pca_graph(column_names, pca_data, image_dir, color_dict, per_var, labels)
     make_pearson_matrix(imputed_iBAQ_df, image_dir)
     hierarchical_cluster(imputed_iBAQ_df, image_dir)
     
