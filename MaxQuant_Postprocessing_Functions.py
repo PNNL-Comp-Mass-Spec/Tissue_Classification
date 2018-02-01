@@ -177,8 +177,10 @@ Input: unindexed dataframe (first column will become index)
 Output: tuple (PCA object, PCA coordinates for dataframe)
 """
 def do_pca(df):
-
-    df.set_index('Majority protein IDs', inplace=True)
+    
+    # Check if index has already been set:
+    if type(df.index) == pd.RangeIndex:
+        df.set_index('Majority protein IDs', inplace=True)
     scaled_data = preprocessing.scale(df.T)
 
     pca = PCA() # create a PCA object
