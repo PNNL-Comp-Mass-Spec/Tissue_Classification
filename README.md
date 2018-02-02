@@ -1,7 +1,7 @@
 # Proteomics_Data_Processing
 
-## Classifier.ipynb
-* Notebook for classification testing
+## Classifiers
+* Contains notebooks for classification testing
 
 ## MaxQuant_Postprocessing.ibynb
 * Notebook for processing MaxQuant output (proteinGroups.txt)
