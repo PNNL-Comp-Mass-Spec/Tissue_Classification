@@ -11,9 +11,13 @@ import seaborn as sns
 from sklearn.decomposition import PCA
 from sklearn import preprocessing
 
+
 """
-Input: Path to tab-sep text document
-Output: Pandas dataframe
+Args: 
+    file (str): path to tab separated proteinGroups.txt file outputted from MaxQuant
+    
+Returns:
+    dataframe: dataframe containing data from the file
 """
 def load_df(file):
     df = pd.read_csv(file, sep='\t', lineterminator='\r', dtype={"Only identified by site": str, "Reverse": str, "Potential contaminant": str})
@@ -21,16 +25,23 @@ def load_df(file):
 
 
 """
-Input: Dataframe (assumes columns 'Only identified by site', 'Reverse', 'Potential contaminant')
-Output: Dataframe with rows having a '+' in any of these columns removed
+Args: 
+    df (dataframe): assumes columns 'Only identified by site', 'Reverse', 'Potential contaminant'
+    
+Returns:
+    df: Dataframe with rows having a '+' in any of these columns removed
 """
 def clean_weakly_identified(df):
     df = df[(df['Only identified by site'] != '+') & (df.Reverse != '+') & (df['Potential contaminant'] != '+')]
     return df
 
+
 """
-Input: Dataframe
-Output: Dataframe where rows containing multiple protein IDs have been removed
+Args: 
+    df (dataframe)
+    
+Returns:
+    df: Dataframe where rows containing multiple protein IDs have been removed
 """
 def remove_dup_proteinIDs(df):
     single_proteinID = df['Majority protein IDs'].str.contains(';') == False
@@ -39,8 +50,12 @@ def remove_dup_proteinIDs(df):
 
 
 """
-Input: Dataframe, string
-Output: Dataframe filtered to contain the protein ID column and columns containing the input string
+Args: 
+    df (dataframe)
+    col_name (string): 'iBAQ ' or 'LFQ'
+    
+Returns: 
+    dataframe: input dataframe filtered to contain the protein ID column and columns containing the input string
 """
 
 def slice_by_column(df, col_name):
@@ -55,8 +70,14 @@ def slice_by_column(df, col_name):
 #
 #########################
 """
-Input: dataframe, list of names of groups (as strings) by which to sort column names
-Output: filtered dataframe
+Args: 
+    df (dataframe)
+    groups (list of strings): list of organs or group names by which column names will be sorted
+    organ_columns (dict)
+    organ_counts (dict)
+    
+Returns:
+    df: filtered dataframe where proteins not observed in at least 50% of samples in any group have been removed
 """
 def filter_low_observed(df, groups, organ_columns, organ_counts):
     samples_per_group = 6  # TODO dynamically assign variable
@@ -83,6 +104,16 @@ def filter_low_observed(df, groups, organ_columns, organ_counts):
 ### TODO: dynamically order columns
 # Group columns by organ so x-axis will be sorted accordingly
 #iBAQ_df = iBAQ_df[['Majority protein IDs'] + organ_columns['Brain'] + organ_columns['Heart'] + organ_columns['Kidney'] + organ_columns['Liver'] + organ_columns['Lung']]
+"""
+Args:
+    df (dataframe)
+    base_dir (string): path to directory to place image
+    title (string): graph title, no extension
+    dimensions (integer tuple, optional): tuple of integers representing plot width and height
+    
+Returns:
+    produces a boxplot and saves it as a pdf in the given base directory
+"""
 
 def make_boxplot(df, base_dir, title, dimensions = (10, 6)):
     df.boxplot(return_type='axes', figsize = dimensions)
@@ -98,6 +129,13 @@ def make_boxplot(df, base_dir, title, dimensions = (10, 6)):
 #
 #########################
 
+"""
+Args:
+    df (dataframe)
+    
+Returns:
+    log2 normalizes dataframe values in place
+"""
 def log2_normalize(df):
     df.iloc[:,1:] = df.iloc[:,1:].applymap(np.log2)
     # log2(0) returns -inf; replace with NaN to avoid skewing data
@@ -110,8 +148,12 @@ def log2_normalize(df):
 #
 #########################
 """
-Input: List of strings, dict
-Output: Dict mapping columns to colors based on organ/group
+Args:
+    groups (list of strings): list of organs or column names to be grouped together by color
+    organ_columns (dict): keys are strings representing organs/groups, values are lists of associated column names
+
+Returns: 
+    dict: dictionary mapping column names to colors based on organ/group
 """
 def map_colors(groups, organ_columns):
     color_dict = {} # Column name : color
@@ -127,7 +169,17 @@ def map_colors(groups, organ_columns):
         
     return color_dict
 
-
+"""
+Args:
+    df (dataframe)
+    base_dir (string): base directory for image
+    title (string): plot title, no extension
+    colors (dict): dictionary mapping column names to colors
+    dimensions (tuple of ints, optional): tuple of integers representing plot width and height
+    
+Returns:
+    produces a seaborn boxplot and saves it as a pdf in the given base directory
+"""
 def make_seaborn_boxplot(df, base_dir, title, colors, dimensions = (10, 6)):
 
     fig, ax = plt.subplots(figsize = dimensions)
@@ -144,6 +196,14 @@ def make_seaborn_boxplot(df, base_dir, title, colors, dimensions = (10, 6)):
 #
 #########################
 
+"""
+Args:
+    df (dataframe)
+    
+Returns:
+    median-normalizes the dataframe in-place
+"""
+
 def median_normalize(df):
     quants = df.iloc[:,1:] # Split off iBAQ columns to process
     median_of_medians = quants.median().median()
@@ -159,6 +219,13 @@ def median_normalize(df):
 #
 #########################
 
+"""
+Args:
+    df (dataframe)
+
+Returns:
+    the input dataframe modified so that missing values are replaced by half the minimum value
+"""
 def impute_missing(df):
     df_min = df.iloc[:,1:].min().min()
     impute_val = df_min/2
@@ -173,8 +240,11 @@ def impute_missing(df):
 #########################
 
 """
-Input: unindexed dataframe (first column will become index)
-Output: tuple (PCA object, PCA coordinates for dataframe)
+Args: 
+    df (dataframe)
+    
+Returns: 
+    pca, pca_data (tuple): PCA object, PCA coordinates for dataframe
 """
 def do_pca(df):
     
@@ -195,6 +265,15 @@ def do_pca(df):
 #
 #########################
 
+"""
+Args:
+    pca (PCA): first object in tuple returned from do_pca
+    base_dir (string): path to directory to place image
+    
+Returns:
+    produces a scree plot and saves it as a pdf in the given base directory
+    per_var, labels (tuple)
+"""
 def make_scree_plot(pca, base_dir):
 
     per_var = np.round(pca.explained_variance_ratio_* 100, decimals = 1)
@@ -218,6 +297,18 @@ def make_scree_plot(pca, base_dir):
 #
 #########################
 
+"""
+Args:
+    column_names (list of strings):
+    pca_data (): PCA coordinates
+    base_dir (string): path to directory to place image
+    color_dict (dict)
+    per_var:
+    labels:
+    
+Returns:
+    produces a PCA plot and saves it as a pdf in the given base directory
+"""
 def draw_pca_graph(column_names, pca_data, base_dir, color_dict, per_var, labels):
     
     pca_df = pd.DataFrame(pca_data, index = column_names, columns = labels)
@@ -241,6 +332,16 @@ def draw_pca_graph(column_names, pca_data, base_dir, color_dict, per_var, labels
 #
 #########################
 
+"""
+Args:
+    pca (PCA)
+    df (dataframe)
+    n (int): number of proteins to return; e.g. 10 for the top 10 proteins with the biggest influence on PC1
+    
+Returns:
+    list of tuples: first element of each tuple is the proteinID, second element is the protein's loading score
+"""
+
 def top_n_loading_scores(pca, df, n):
     
     loading_scores = pd.Series(pca.components_[0], index = df.index)
@@ -255,6 +356,16 @@ def top_n_loading_scores(pca, df, n):
 # Pearson correlation of the samples compared to each other 
 #
 #########################
+"""
+Args:
+    df (dataframe)
+    base_dir (string): path to directory to place image
+    colormap (string, optional): seaborn colormap code. Defaults to a red-blue spectrum
+    dimensions (tuple of ints, optional): tuple of integers representing plot width and height
+    
+Returns:
+    produces a Pearson matrix plot and saves it as a pdf in the given base directory
+"""
 
 def make_pearson_matrix(df, base_dir, colormap = "RdBu_r", dimensions = (16, 11)):
 
@@ -279,7 +390,15 @@ def make_pearson_matrix(df, base_dir, colormap = "RdBu_r", dimensions = (16, 11)
 # Hierarchical clustering of proteins
 #
 #########################
-
+"""
+Args:
+    df (dataframe)
+    base_dir (string): path to directory to place image
+    dimensions (tuple of ints, optional): tuple of integers representing plot width and height
+    
+Returns:
+    produces a hierarchical cluster plot and saves it as a pdf in the given base directory
+"""
 def hierarchical_cluster(df, base_dir, dimensions = (10, 6)):
 
     z = linkage(df.values, method='ward')
@@ -299,7 +418,14 @@ def hierarchical_cluster(df, base_dir, dimensions = (10, 6)):
 
 # ## ANOVA and t-tests
 
-
+"""
+Args:
+    df (dataframe)
+    pval (float): p-value; .05 corresponds to 5%
+    
+Returns:
+    dataframe: input dataframe filtered to only include proteins passing ANOVA with the given p-value
+"""
 def filter_proteins_by_anova(df, pval):
     # Build list of proteins that pass ANOVA
     pass_anova = []
@@ -327,6 +453,15 @@ def filter_proteins_by_anova(df, pval):
 #
 #########################
 
+"""
+Args:
+    df (dataframe)
+    base_dir (string): path to directory to place image
+    colormap (string, optional): seaborn colormap code. Defaults to a red-blue spectrum
+    
+Returns:
+    produces a heatmap and saves it as a pdf in the given base directory
+"""
 def protein_heatmap(df, base_dir, colormap = "RdBu_r"):
 
     sns.clustermap(df,
@@ -337,7 +472,6 @@ def protein_heatmap(df, base_dir, colormap = "RdBu_r"):
     output_path = base_dir + 'Proteins_Passing_ANOVA_Heatmap.pdf'
     plt.savefig(output_path, bbox_inches = "tight")
     plt.clf()
-
 
 
 #########################
@@ -356,8 +490,13 @@ def protein_heatmap(df, base_dir, colormap = "RdBu_r"):
 """
 Runs a spreadsheet through the process of cleaning and analyzing, producing charts
 
-Input: path to proteinGroupt.txt file, list of group names (e.g. ['Brain', 'Lung' ...]), directory for images
-Output: Log2 and median normalized dataframe (missing values not imputed). Images will be saved into image_dir
+Args: 
+    file (string): path to proteinGroupt.txt file
+    groups (list of strings): list of organ/group names (e.g. ['Brain', 'Lung' ...])
+    image_dir (string): directory for images to be saved into. Must already exist
+    
+Returns: 
+    dataframe: Log2 and median normalized dataframe (missing values not imputed). Images will be saved into image_dir
 """
 def mq_pipeline(file, groups, image_dir):
     default_dimensions = (10, 6)
