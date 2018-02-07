@@ -3,13 +3,9 @@
 ## Classifiers
 * Contains notebooks for classification testing
 
-## MaxQuant_Postprocessing.ibynb
-* Notebook for processing MaxQuant output (proteinGroups.txt)
-* Assumes columns after 'Potential Contaminant' have been removed
-
-## MaxQuant_Postprocessing_Functions.ipynb
-* Notebook for testing individual functions
+## Testing_Notebooks
+* Jupyter notebooks used for data processing testing and exploration
 
 ## MaxQuant_Postprocessing_Functions.py
-* File containing importable functions for MaxQuant output postprocessing and graph generation
+* Contains functions for MaxQuant output postprocessing and graph generation
 * Includes function to run file through entire pipeline
