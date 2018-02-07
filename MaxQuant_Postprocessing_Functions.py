@@ -52,14 +52,19 @@ def remove_dup_proteinIDs(df):
 """
 Args: 
     df (dataframe)
+    feature (string): 'protein' or 'peptide' depending which type of data we are looking at
     col_name (string): 'iBAQ ' or 'LFQ'
     
 Returns: 
     dataframe: input dataframe filtered to contain the protein ID column and columns containing the input string
 """
 
-def slice_by_column(df, col_name):
-    selected_col_name = col_name + ".*|Majority protein IDs"
+def slice_by_column(df, feature, col_name):
+    if feature == 'protein':
+        selected_col_name = col_name + ".*|Majority protein IDs"
+    else:
+        selected_col_name = col_name + ".*|Sequence"
+        
     df_slice = df.filter(regex = selected_col_name)
     return df_slice
 
@@ -504,7 +509,7 @@ def mq_pipeline(file, groups, image_dir):
     df = clean_weakly_identified(df)
     df = remove_dup_proteinIDs(df)
         
-    iBAQ_df = slice_by_column(df, 'iBAQ ') 
+    iBAQ_df = slice_by_column(df, 'protein', 'iBAQ ') 
     #LFQ_df = slice_by_column(df, 'LFQ') 
     
     organ_columns = {} # 'Liver': ['iBAQ 04_Liver', 'iBAQ 05_Liver', ...]
