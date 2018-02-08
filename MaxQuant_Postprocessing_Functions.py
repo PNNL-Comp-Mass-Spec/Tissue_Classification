@@ -1,5 +1,6 @@
 ## Post Processing of MaxQuant output (proteinGroups.txt)
 
+import itertools
 import matplotlib.pyplot as plt
 from numpy import logical_or
 import numpy as np
@@ -106,9 +107,6 @@ def filter_low_observed(df, groups, organ_columns, organ_counts):
 #
 #########################
 
-### TODO: dynamically order columns
-# Group columns by organ so x-axis will be sorted accordingly
-#iBAQ_df = iBAQ_df[['Majority protein IDs'] + organ_columns['Brain'] + organ_columns['Heart'] + organ_columns['Kidney'] + organ_columns['Liver'] + organ_columns['Lung']]
 """
 Args:
     df (dataframe)
@@ -254,8 +252,9 @@ Returns:
 def do_pca(df):
     
     # Check if index has already been set:
-    if type(df.index) == pd.RangeIndex:
+    if type(df.index) == pd.core.indexes.numeric.Int64Index:
         df.set_index('Majority protein IDs', inplace=True)
+    
     scaled_data = preprocessing.scale(df.T)
 
     pca = PCA() # create a PCA object
@@ -486,6 +485,20 @@ def protein_heatmap(df, base_dir, colormap = "RdBu_r"):
 #########################
 
 
+"""
+Args:
+    df (dataframe)
+    organs (list of strings)
+    organ_to_columns (dict): mapping of each organ to its associated column names
+    
+Returns:
+    df where columns have been re-ordered to cluster by organ
+"""
+def reorder_columns(df, organs, organ_to_columns):
+    all_cols = list(organ_to_columns[o] for o in organs)
+    merged = list(itertools.chain.from_iterable(all_cols))
+    df = df[['Majority protein IDs'] + merged]
+    return df
 
 #########################
 #
@@ -510,7 +523,7 @@ def mq_pipeline(file, groups, image_dir):
     df = remove_dup_proteinIDs(df)
         
     iBAQ_df = slice_by_column(df, 'protein', 'iBAQ ') 
-    #LFQ_df = slice_by_column(df, 'LFQ') 
+    #LFQ_df = slice_by_column(df, 'protein', 'LFQ') 
     
     organ_columns = {} # 'Liver': ['iBAQ 04_Liver', 'iBAQ 05_Liver', ...]
     organ_counts = {} # 'Liver': 
@@ -518,9 +531,8 @@ def mq_pipeline(file, groups, image_dir):
     iBAQ_df = filter_low_observed(iBAQ_df, groups, organ_columns, organ_counts)
     make_boxplot(iBAQ_df, image_dir, 'Unnormalized Protein Abundances')
     
-    ### TODO: dynamically order columns
     # Group columns by organ so x-axis will be sorted accordingly
-    iBAQ_df = iBAQ_df[['Majority protein IDs'] + organ_columns['Brain'] + organ_columns['Heart'] + organ_columns['Kidney'] + organ_columns['Liver'] + organ_columns['Lung']]
+    iBAQ_df = reorder_columns(iBAQ_df, groups, organ_columns)
     
     ### Normalize and produce box plots
     log2_normalize(iBAQ_df)
