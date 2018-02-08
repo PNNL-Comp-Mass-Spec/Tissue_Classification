@@ -86,14 +86,13 @@ Returns:
     df: filtered dataframe where proteins not observed in at least 50% of samples in any group have been removed
 """
 def filter_low_observed(df, groups, organ_columns, organ_counts):
-    samples_per_group = 6  # TODO dynamically assign variable
-    threshold = samples_per_group/2
     df_cols = df.columns.values.tolist()
     
     for group in groups:
         regex = re.compile(r'.*' + group)
         organ_columns[group] = list(filter(regex.search, df_cols))
         cols = organ_columns[group] # Get corresponding list of column names
+        threshold = len(cols)/2
         organ_counts[group] = (df[cols] > 0).sum(1) # count number of samples with non-zero abundance for each protein
         
     conditions = list(organ_counts[g] >= threshold for g in groups)
