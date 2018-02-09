@@ -141,11 +141,14 @@ Returns:
     log2 normalizes dataframe values in place
 """
 def log2_normalize(df):
-    df.iloc[:,1:] = df.iloc[:,1:].applymap(np.log2)
+    if type(df.index) == pd.core.indexes.base.Index:
+        df.iloc[:,:] = np.log2(df.iloc[:,:])
+    else:
+        df.iloc[:,1:] = np.log2(df.iloc[:,1:])
+        
     # log2(0) returns -inf; replace with NaN to avoid skewing data
     df.replace([np.inf, -np.inf], np.nan, inplace=True)
-
-
+    
 #########################
 #
 # Map organs to colors for visualization clarity 
