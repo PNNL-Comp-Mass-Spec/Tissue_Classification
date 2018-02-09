@@ -496,7 +496,7 @@ Args:
     df (dataframe)
     organs (list of strings)
     organ_to_columns (dict): mapping of each organ to its associated column names
-    feature (string, otptional): either 'protein' or 'peptide' depending which data is being fed in. 'protein' by default
+    feature (string, optional): either 'protein' or 'peptide' depending which data is being fed in. 'protein' by default
     
 Returns:
     df where columns have been re-ordered to cluster by organ
@@ -505,8 +505,12 @@ def reorder_columns(df, organs, organ_to_columns, feature = 'protein'):
     all_cols = list(organ_to_columns[o] for o in organs)
     merged = list(itertools.chain.from_iterable(all_cols))
     
-    idx = 'Majority protein IDs' if (feature == 'protein') else 'Sequence'
-    df = df[[idx] + merged]
+    if type(df.index) == pd.core.indexes.base.Index:
+        df = df[merged]
+    else:
+        idx = 'Majority protein IDs' if (feature == 'protein') else 'Sequence'
+        df = df[[idx] + merged]
+    
     return df
 
 #########################
