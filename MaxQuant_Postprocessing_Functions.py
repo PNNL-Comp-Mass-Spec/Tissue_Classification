@@ -21,7 +21,9 @@ Returns:
     dataframe: dataframe containing data from the file
 """
 def load_df(file):
+    
     df = pd.read_csv(file, sep='\t', lineterminator='\r', dtype={"Only identified by site": str, "Reverse": str, "Potential contaminant": str})
+            
     return df
 
 
@@ -248,11 +250,12 @@ Args:
 Returns: 
     pca, pca_data (tuple): PCA object, PCA coordinates for dataframe
 """
-def do_pca(df):
+def do_pca(df, feature):
     
     # Check if index has already been set:
     if type(df.index) == pd.core.indexes.numeric.Int64Index:
-        df.set_index('Majority protein IDs', inplace=True)
+        idx = 'Majority protein IDs' if (feature == 'protein') else 'Sequence'
+        df.set_index(idx, inplace=True)
     
     scaled_data = preprocessing.scale(df.T)
 
@@ -435,6 +438,7 @@ def filter_proteins_by_anova(df, pval):
     max_pval = pval
     proteins = list(df.index)
 
+    ### TODO: dynamically determine ranges
     # Perform ANOVA on each row (protein) grouping by organ
     # If the protein passes ANOVA (p-value <= max_pval), add it to the list of proteins to keep
     for i in range(len(df)): 
@@ -489,14 +493,17 @@ Args:
     df (dataframe)
     organs (list of strings)
     organ_to_columns (dict): mapping of each organ to its associated column names
+    feature (string, otptional): either 'protein' or 'peptide' depending which data is being fed in. 'protein' by default
     
 Returns:
     df where columns have been re-ordered to cluster by organ
 """
-def reorder_columns(df, organs, organ_to_columns):
+def reorder_columns(df, organs, organ_to_columns, feature = 'protein'):
     all_cols = list(organ_to_columns[o] for o in organs)
     merged = list(itertools.chain.from_iterable(all_cols))
-    df = df[['Majority protein IDs'] + merged]
+    
+    idx = 'Majority protein IDs' if (feature == 'protein') else 'Sequence'
+    df = df[[idx] + merged]
     return df
 
 #########################
@@ -511,47 +518,53 @@ Args:
     file (string): path to proteinGroupt.txt file
     groups (list of strings): list of organ/group names (e.g. ['Brain', 'Lung' ...])
     image_dir (string): directory for images to be saved into. Must already exist
+    quant (string): 'LFQ' or 'iBAQ' depending which quantification values are to be observed
+    feature (string, otptional): either 'protein' or 'peptide' depending which data is being fed in. 'protein' by default
     
 Returns: 
     dataframe: Log2 and median normalized dataframe (missing values not imputed). Images will be saved into image_dir
 """
-def mq_pipeline(file, groups, image_dir):
+def mq_pipeline(file, groups, image_dir, quant, feature='protein'):
     default_dimensions = (10, 6)
     df = load_df(file)
-    df = clean_weakly_identified(df)
-    df = remove_dup_proteinIDs(df)
+    
+    if(feature == 'protein'):
+        df = clean_weakly_identified(df)
+        df = remove_dup_proteinIDs(df)
         
-    iBAQ_df = slice_by_column(df, 'protein', 'iBAQ ') 
-    #LFQ_df = slice_by_column(df, 'protein', 'LFQ') 
+    if quant == 'iBAQ':
+        quant_df = slice_by_column(df, feature, 'iBAQ ') 
+    else:
+        quant_df = slice_by_column(df, feature, 'LFQ') 
     
     organ_columns = {} # 'Liver': ['iBAQ 04_Liver', 'iBAQ 05_Liver', ...]
     organ_counts = {} # 'Liver': 
     
-    iBAQ_df = filter_low_observed(iBAQ_df, groups, organ_columns, organ_counts)
-    make_boxplot(iBAQ_df, image_dir, 'Unnormalized Protein Abundances')
+    quant_df = filter_low_observed(quant_df, groups, organ_columns, organ_counts)
+    make_boxplot(quant_df, image_dir, 'Unnormalized ' + feature.title() + ' Abundances')
     
     # Group columns by organ so x-axis will be sorted accordingly
-    iBAQ_df = reorder_columns(iBAQ_df, groups, organ_columns)
+    quant_df = reorder_columns(quant_df, groups, organ_columns, feature)
     
     ### Normalize and produce box plots
-    log2_normalize(iBAQ_df)
+    log2_normalize(quant_df)
     color_dict = map_colors(groups, organ_columns)
-    make_seaborn_boxplot(iBAQ_df, image_dir, 'Log2 Transformed Boxplot', color_dict)
-    median_normalize(iBAQ_df)
-    make_seaborn_boxplot(iBAQ_df, image_dir, 'Median Normalized Boxplot', color_dict)
+    make_seaborn_boxplot(quant_df, image_dir, 'Log2 Transformed Boxplot', color_dict)
+    median_normalize(quant_df)
+    make_seaborn_boxplot(quant_df, image_dir, 'Median Normalized Boxplot', color_dict)
     
     ### PCA
-    imputed_iBAQ_df = impute_missing(iBAQ_df.copy())
-    pca, pca_data = do_pca(imputed_iBAQ_df)
+    imputed_quant_df = impute_missing(quant_df.copy())
+    pca, pca_data = do_pca(imputed_quant_df, feature)
     
     per_var, labels = make_scree_plot(pca, image_dir) 
-    column_names = imputed_iBAQ_df.columns.values.tolist()
+    column_names = imputed_quant_df.columns.values.tolist()
     draw_pca_graph(column_names, pca_data, image_dir, color_dict, per_var, labels)
-    make_pearson_matrix(imputed_iBAQ_df, image_dir)
-    hierarchical_cluster(imputed_iBAQ_df, image_dir)
+    make_pearson_matrix(imputed_quant_df, image_dir)
+    if(feature == 'protein'):
+        hierarchical_cluster(imputed_quant_df, image_dir)
+        pval = 0.05
+        pass_anova_df = filter_proteins_by_anova(imputed_quant_df, pval)
+        protein_heatmap(pass_anova_df, image_dir)
     
-    pval = 0.05
-    pass_anova_df = filter_proteins_by_anova(imputed_iBAQ_df, pval)
-    protein_heatmap(pass_anova_df, image_dir)
-    
-    return iBAQ_df
+    return quant_df
