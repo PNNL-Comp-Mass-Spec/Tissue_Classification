@@ -4,6 +4,7 @@ Provides functions to package together common classification steps
 
 import re
 from sklearn.metrics import accuracy_score
+from sklearn.model_selection import cross_val_score
 from sklearn.neighbors import KNeighborsClassifier
 
 #########################
@@ -49,6 +50,23 @@ def make_decisiontree_model(data, labels, num_splits):
     
     return dt.fit(data, labels)
 
+"""
+Use a classification model to make label predictions on new data
+
+Args:
+    model: classification model
+    data (dataframe): new data to be labelled by the model
+    labels (list of strings): list of correct labels for the input data
+    
+Returns:
+    List of strings: List of predicted labels
+    Prints accuracy score, as well as the predicted and actual labels
+"""
+def make_prediction(model, data, labels):
+    pred = model.predict(data)
+    print('score', accuracy_score(pred, labels))
+    print('pred', pred)
+    print('actual', labels)
 
 #########################
 #
