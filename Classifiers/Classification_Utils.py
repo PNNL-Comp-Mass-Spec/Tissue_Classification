@@ -6,12 +6,33 @@ import re
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import cross_val_score
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn import tree
 
 #########################
 #
 # Classifiers
 #
 #########################
+
+"""
+Abstraction of cross-validation score calculation and stat printing
+Called from all specific make_x_model functions
+
+Args:
+    model: instance of any sklearn classification model
+    data (dataframe): contains all data that will be used to fit the model
+    labels (list of strings): corresponding labels for each row of data
+    num_splits (int): number of train-test splits to test
+    
+Returns:
+    The given model fitted on all inputted data
+    Prints mean cross-validation score and 95% confidence interval
+"""
+def fit_model(model, data, labels, num_splits):
+    scores = cross_val_score(model, data, labels, cv=num_splits)
+    print('Scores:',scores)
+    print('Accuracy: %0.2f (+/- %0.2f)' % (scores.mean(), scores.std() * 2))
+    return model.fit(data, labels)
 
 """
 Args:
@@ -25,12 +46,7 @@ Returns:
 """
 def make_knn_model(data, labels, num_splits):
     knn = KNeighborsClassifier()
-    scores = cross_val_score(knn, data, labels, cv=num_splits)
-    print(scores)
-    print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
-
-    return knn.fit(data, labels)
-
+    return fit_model(knn, data, labels, num_splits)
 
 """
 Args:
@@ -44,11 +60,8 @@ Returns:
 """
 def make_decisiontree_model(data, labels, num_splits):
     dt = tree.DecisionTreeClassifier()
-    scores = cross_val_score(dt2, iBAQ_df.T, col_labels, cv=4)
-    print(scores)
-    print("Accuracy: %0.2f (+/- %0.2f)" % (scores.mean(), scores.std() * 2))
-    
-    return dt.fit(data, labels)
+    return fit_model(dt, data, labels, num_splits)
+
 
 """
 Use a classification model to make label predictions on new data
@@ -68,6 +81,7 @@ def make_prediction(model, data, labels):
     print('pred', pred)
     print('actual', labels)
 
+    
 #########################
 #
 # Dataframe adjustments
