@@ -1,4 +1,4 @@
-## Post Processing of MaxQuant output (proteinGroups.txt)
+## Post Processing of MaxQuant output (proteinGroups.txt or peptides.txt)
 
 import itertools
 import matplotlib.pyplot as plt
@@ -435,22 +435,24 @@ Args:
 Returns:
     dataframe: input dataframe filtered to only include proteins passing ANOVA with the given p-value
 """
-def filter_proteins_by_anova(df, pval):
+def filter_proteins_by_anova(df, pval, organs, organ_to_columns):
     # Build list of proteins that pass ANOVA
     pass_anova = []
-    max_pval = pval
     proteins = list(df.index)
-
-    ### TODO: dynamically determine ranges
+    
+    list_of_column_lists = [] # [['01_Lung', '02_Lung'], ['01_Heart', '02_Heart']]
+    for organ in organs:
+        cols = organ_to_columns[organ] # List of strings
+        list_of_column_lists.append(cols) # List of lists of strings
+        
+    sub_frames = list(df[subset] for subset in list_of_column_lists) # List of dataframes
+    
     # Perform ANOVA on each row (protein) grouping by organ
-    # If the protein passes ANOVA (p-value <= max_pval), add it to the list of proteins to keep
+    # If the protein passes ANOVA (p-value <= pval), add it to the list of proteins to keep
     for i in range(len(df)): 
-        f, p = stats.f_oneway(df.iloc[i, :6],
-                              df.iloc[i, 6:12],
-                              df.iloc[i, 12:18], 
-                              df.iloc[i, 18:24], 
-                              df.iloc[i, 24:30])
-        if p <= max_pval:
+        row_groups = list(frame.iloc[i, :] for frame in sub_frames)
+        f, p = stats.f_oneway(*row_groups)
+        if p <= pval:
             pass_anova.append(proteins[i])
 
     # Filter dataframe down to only include proteins in pass_anova
@@ -571,7 +573,7 @@ def mq_pipeline(file, groups, image_dir, quant, feature='protein'):
     if(feature == 'protein'):
         hierarchical_cluster(imputed_quant_df, image_dir)
         pval = 0.05
-        pass_anova_df = filter_proteins_by_anova(imputed_quant_df, pval)
+        pass_anova_df = filter_proteins_by_anova(imputed_quant_df, pval, groups, organ_columns)
         protein_heatmap(pass_anova_df, image_dir)
     
     return quant_df
