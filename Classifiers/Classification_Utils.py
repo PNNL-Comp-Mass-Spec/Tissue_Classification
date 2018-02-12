@@ -85,6 +85,23 @@ def make_test_prediction(model, data, labels, print_details=True):
         print('actual', labels)
     
     return pred
+
+"""
+Args:
+    model: SKLearn classification model
+    data (dataframe): test data
+    n (int): index of sample to show prediction probabilities for
+
+Returns:
+    Prints each class's prediction probability for the specified data sample
+"""
+def show_prediction_probabilities(model, data, n):
+    pred_probabilities = model.predict_proba(data)
+    classes = model.classes_
+
+    print('\nPrediction probabilities for sample:')
+    for prob in zip(classes, pred_probabilities[n]):
+        print(prob[0], ':', prob[1])
     
 #########################
 #
@@ -133,3 +150,5 @@ def get_labels(df, columns, organ_to_columns):
         labels.append(key)
         
     return labels
+
+
