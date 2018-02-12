@@ -79,10 +79,12 @@ Returns:
 """
 def make_test_prediction(model, data, labels, print_details=True):
     pred = model.predict(data)
-    print('score', accuracy_score(pred, labels))
-    print('pred', pred)
-    print('actual', labels)
-
+    if(print_details):
+        print('score', accuracy_score(pred, labels))
+        print('pred', pred)
+        print('actual', labels)
+    
+    return pred
     
 #########################
 #
