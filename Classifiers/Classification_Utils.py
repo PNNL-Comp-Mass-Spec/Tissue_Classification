@@ -4,6 +4,7 @@ Provides functions to package together common classification steps
 
 import re
 from sklearn.metrics import accuracy_score
+from sklearn.model_selection import cross_val_predict
 from sklearn.model_selection import cross_val_score
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn import tree
@@ -64,18 +65,19 @@ def decisiontree_model_crossval(data, labels, num_splits):
 
 
 """
-Use a classification model to make label predictions on new data
+Use a classification model to make label predictions on test data set
 
 Args:
     model: classification model
     data (dataframe): new data to be labelled by the model
     labels (list of strings): list of correct labels for the input data
+    print_details (boolean, optional): Determines whether to print prediction information. Defaults to True
     
 Returns:
     List of strings: List of predicted labels
     Prints accuracy score, as well as the predicted and actual labels
 """
-def make_prediction(model, data, labels):
+def make_test_prediction(model, data, labels, print_details=True):
     pred = model.predict(data)
     print('score', accuracy_score(pred, labels))
     print('pred', pred)
