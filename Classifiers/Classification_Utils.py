@@ -44,7 +44,7 @@ Returns:
     K Nearest Neighbors classification model fitted on all inputted data
     Prints mean cross-validation score and 95% confidence interval
 """
-def make_knn_model(data, labels, num_splits):
+def knn_model_crossval(data, labels, num_splits):
     knn = KNeighborsClassifier()
     return fit_model(knn, data, labels, num_splits)
 
@@ -58,7 +58,7 @@ Returns:
     Decision Tree classification model fitted on all inputted data
     Prints mean cross-validation score and 95% confidence interval
 """
-def make_decisiontree_model(data, labels, num_splits):
+def decisiontree_model_crossval(data, labels, num_splits):
     dt = tree.DecisionTreeClassifier()
     return fit_model(dt, data, labels, num_splits)
 
