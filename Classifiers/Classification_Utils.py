@@ -83,33 +83,26 @@ def bayes_gaussian_model_crossval(data, labels, num_splits):
 
 """
 Args:
-    X_train (dataframe)
-    y_train (list of strings)
-    X_test (dataframe)
-    y_test (list of strings)
-    
+    data (dataframe): contains all data that will be used to fit the model
+    labels (list of strings): corresponding labels for each row of data
+    num_splits (int): number of train-test splits to test
+
 Returns:
-    List of SVC Classification models
-    Prints accuracy scores, predicted and actual labels for each model
+    List of SVC classification models fitted on all inputted data
+    Prints mean cross-validation scores and 95% confidence intervals
 """
-def SVC_models(X_train, y_train, X_test, y_test):
+def SVC_models_crossval(data, labels, num_splits):
     C = 1.0  # SVM regularization parameter
-    models = (SVC(kernel='linear', C=C),
+    models = (SVC(kernel='linear', C=C, probability=True),
               LinearSVC(C=C),
-              SVC(kernel='rbf', gamma=0.7, C=C),
-              SVC(kernel='poly', degree=3, C=C))
+              SVC(kernel='rbf', gamma=0.7, C=C, probability=True),
+              SVC(kernel='poly', degree=3, C=C, probability=True))
 
     # Fit all the models
-    models = (clf.fit(X_train, y_train) for clf in models)
+    models = (fit_model(clf, data, labels, num_splits) for clf in models)
+    model_list = list(models)
 
-    for model in models:
-        model_y_pred = model.predict(X_test)
-        print('\n*** Model: ', model, '\n')
-        print('score', accuracy_score(model_y_pred, y_test))
-        print('pred label', model_y_pred)
-        print('actual', y_test)
-        
-    return models
+    return model_list
 
 """
 Use a classification model to make label predictions on test data set
