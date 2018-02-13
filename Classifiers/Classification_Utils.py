@@ -3,6 +3,7 @@ Provides functions to package together common classification steps
 """
 
 import re
+from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import cross_val_predict
 from sklearn.model_selection import cross_val_score
@@ -65,6 +66,21 @@ Returns:
 def decisiontree_model_crossval(data, labels, num_splits):
     dt = tree.DecisionTreeClassifier()
     return fit_model(dt, data, labels, num_splits)
+
+
+"""
+Args:
+    data (dataframe): contains all data that will be used to fit the model
+    labels (list of strings): corresponding labels for each row of data
+    num_splits (int): number of train-test splits to test
+
+Returns:
+    Random forest classification model fitted on all inputted data
+    Prints mean cross-validation score and 95% confidence interval
+"""
+def randomforest_model_crossval(data, labels, num_splits):
+    rf = RandomForestClassifier(n_estimators=10)
+    return fit_model(rf, data, labels, num_splits)
 
 """
 Args:
