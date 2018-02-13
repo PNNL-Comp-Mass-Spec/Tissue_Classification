@@ -249,18 +249,20 @@ def impute_missing(df):
 """
 Args: 
     df (dataframe)
+    feature (string, optional): 'peptide' or 'protein'
+    scale (boolean, optional): determines whether to z-score scale the data or not. Defaults to true
     
 Returns: 
     pca, pca_data (tuple): PCA object, PCA coordinates for dataframe
 """
-def do_pca(df, feature):
+def do_pca(df, feature='protein', scale=True):
     
     # Check if index has already been set:
     if type(df.index) == pd.core.indexes.numeric.Int64Index:
         idx = 'Majority protein IDs' if (feature == 'protein') else 'Sequence'
         df.set_index(idx, inplace=True)
     
-    scaled_data = preprocessing.scale(df.T)
+    scaled_data = preprocessing.scale(df.T) if scale else df.T
 
     pca = PCA() # create a PCA object
     pca.fit(scaled_data) # do the math
@@ -343,12 +345,12 @@ def draw_pca_graph(column_names, pca_data, base_dir, color_dict, per_var, labels
 
 """
 Args:
-    pca (PCA)
+    pca (PCA): sklearn.decomposition.PCA instance
     df (dataframe)
-    n (int): number of proteins to return; e.g. 10 for the top 10 proteins with the biggest influence on PC1
+    n (int): number of proteins to return; e.g. n=10 returns the top 10 proteins with the biggest influence on PC1
     
 Returns:
-    list of tuples: first element of each tuple is the proteinID, second element is the protein's loading score
+    list of tuples: first element of each tuple is the proteinID (string), second element is the protein's loading score (float)
 """
 
 def top_n_loading_scores(pca, df, n):
@@ -491,6 +493,8 @@ def protein_heatmap(df, base_dir, colormap = "RdBu_r"):
 # Tukey Test
 #
 #########################
+
+
 
 
 """
