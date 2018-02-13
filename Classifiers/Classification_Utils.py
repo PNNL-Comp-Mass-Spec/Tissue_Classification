@@ -90,18 +90,19 @@ def make_test_prediction(model, data, labels, print_details=True):
 Args:
     model: SKLearn classification model
     data (dataframe): test data
-    n (int): index of sample to show prediction probabilities for
+    idx (int): index of sample to show prediction probabilities for
 
 Returns:
     Prints each class's prediction probability for the specified data sample
 """
-def show_prediction_probabilities(model, data, n):
+def show_prediction_probabilities(model, data, idx):
     pred_probabilities = model.predict_proba(data)
     classes = model.classes_
 
-    print('\nPrediction probabilities for sample:')
-    for prob in zip(classes, pred_probabilities[n]):
+    print('Prediction probabilities for sample:')
+    for prob in zip(classes, pred_probabilities[idx]):
         print(prob[0], ':', prob[1])
+    
     
 #########################
 #
@@ -152,3 +153,15 @@ def get_labels(df, columns, organ_to_columns):
     return labels
 
 
+"""
+Fits new data to training features so that it can be classified
+
+Args:
+    original_df (dataframe): data used to train classification model
+    new_df (dataframe): new data to be classified
+
+Returns:
+    dataframe: new_df joined to the features of the training data. This dataframe can now be classified by a model trained with original_df
+"""
+def fit_new_data(original_df, new_df):
+    return original_df.iloc[:,:0].join(new_df)
