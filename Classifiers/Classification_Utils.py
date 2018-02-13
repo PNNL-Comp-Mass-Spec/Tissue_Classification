@@ -6,7 +6,10 @@ import re
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import cross_val_predict
 from sklearn.model_selection import cross_val_score
+from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.svm import LinearSVC
+from sklearn.svm import SVC
 from sklearn import tree
 
 #########################
@@ -63,6 +66,50 @@ def decisiontree_model_crossval(data, labels, num_splits):
     dt = tree.DecisionTreeClassifier()
     return fit_model(dt, data, labels, num_splits)
 
+"""
+Args:
+    data (dataframe): contains all data that will be used to fit the model
+    labels (list of strings): corresponding labels for each row of data
+    num_splits (int): number of train-test splits to test
+
+Returns:
+    Naive Bayes Gaussian classification model fitted on all inputted data
+    Prints mean cross-validation score and 95% confidence interval
+"""
+def bayes_gaussian_model_crossval(data, labels, num_splits):
+    gnb = GaussianNB()
+    return fit_model(gnb, data, labels, num_splits)
+
+
+"""
+Args:
+    X_train (dataframe)
+    y_train (list of strings)
+    X_test (dataframe)
+    y_test (list of strings)
+    
+Returns:
+    List of SVC Classification models
+    Prints accuracy scores, predicted and actual labels for each model
+"""
+def SVC_models(X_train, y_train, X_test, y_test):
+    C = 1.0  # SVM regularization parameter
+    models = (SVC(kernel='linear', C=C),
+              LinearSVC(C=C),
+              SVC(kernel='rbf', gamma=0.7, C=C),
+              SVC(kernel='poly', degree=3, C=C))
+
+    # Fit all the models
+    models = (clf.fit(X_train, y_train) for clf in models)
+
+    for model in models:
+        model_y_pred = model.predict(X_test)
+        print('\n*** Model: ', model, '\n')
+        print('score', accuracy_score(model_y_pred, y_test))
+        print('pred label', model_y_pred)
+        print('actual', y_test)
+        
+    return models
 
 """
 Use a classification model to make label predictions on test data set
