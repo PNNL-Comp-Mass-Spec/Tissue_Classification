@@ -248,6 +248,48 @@ def knn_grid_search(cv, n_jobs):
     knn_grid = grid_search.GridSearchCV(pipe, cv=cv, n_jobs=n_jobs, param_grid=knn_param_grid)
     return knn_grid
 
+"""
+Args:
+    cv (int): Number of cross-validation folds
+    n_jobs(int): Number of jobs to run in parallel
+    
+Returns:
+    GridSearchCV: sklearn.model_selection.GridSearchCV instance for RandomForest variations; attributes include best_estimator_, best_score_, and best_params_
+"""
+def rf_grid_search(cv, n_jobs):
+    pipe = Pipeline([
+        ('reduce_dim', PCA()),
+        ('classify', RandomForestClassifier())])
+
+    N_ESTIMATORS=[25, 50, 100, 200]
+    MIN_SAMPLES_SPLIT=[2, 3, 4, 5, 10]
+    
+    N_FEATURES_OPTIONS = [2, 4, 8]
+    PERCENTILE_OPTIONS = [5, 10, 25, 50]
+ 
+    rf_param_grid = [
+        {
+            'reduce_dim': [PCA(), NMF()],
+            'reduce_dim__n_components': N_FEATURES_OPTIONS,
+            'classify__n_estimators': N_ESTIMATORS,
+            'classify__min_samples_split': MIN_SAMPLES_SPLIT
+        },
+        {
+            'reduce_dim': [SelectKBest()],
+            'reduce_dim__k': N_FEATURES_OPTIONS,
+            'classify__n_estimators': N_ESTIMATORS,
+            'classify__min_samples_split': MIN_SAMPLES_SPLIT
+        },
+        {
+            'reduce_dim': [SelectPercentile()],
+            'reduce_dim__percentile': PERCENTILE_OPTIONS,
+            'classify__n_estimators': N_ESTIMATORS,
+            'classify__min_samples_split': MIN_SAMPLES_SPLIT
+        },
+    ]
+
+    rf_grid = grid_search.GridSearchCV(pipe, cv=cv, n_jobs=n_jobs, param_grid=rf_param_grid)
+    return rf_grid
 
 #########################
 #
