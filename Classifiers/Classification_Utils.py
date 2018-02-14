@@ -3,15 +3,17 @@ Provides functions to package together common classification steps
 """
 
 import re
+from sklearn import grid_search
+from sklearn import tree
+from sklearn.decomposition import PCA, NMF
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.feature_selection import SelectKBest, SelectPercentile
 from sklearn.metrics import accuracy_score
-from sklearn.model_selection import cross_val_predict
-from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import cross_val_predict, cross_val_score
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.svm import LinearSVC
-from sklearn.svm import SVC
-from sklearn import tree
+from sklearn.pipeline import Pipeline
+from sklearn.svm import LinearSVC, SVC
 
 #########################
 #
@@ -160,6 +162,93 @@ def show_prediction_probabilities(model, data, idx):
         print(prob[0], ':', prob[1])
     
     
+#########################
+#
+# Grid Searches for Classifier hyperparameter tuning
+#
+#########################
+
+"""
+Args:
+    cv (int): Number of cross-validation folds
+    n_jobs(int): Number of jobs to run in parallel
+    
+Returns:
+    GridSearchCV: sklearn.model_selection.GridSearchCV instance for SVC classification variations; attributes include best_estimator_, best_score_, and best_params_
+"""
+def svc_grid_search(cv, n_jobs):
+    pipe = Pipeline([
+        ('reduce_dim', PCA()),
+        ('classify', SVC(probability=True))])
+
+    N_FEATURES_OPTIONS = [2, 4, 8]
+    C_OPTIONS = [1, 10, 100, 1000]
+    PERCENTILE_OPTIONS = [5, 10, 25, 50]
+    KERNELS = ['linear', 'rbf', 'poly']
+
+    SVC_param_grid = [
+        {
+            'reduce_dim': [PCA(), NMF()],
+            'reduce_dim__n_components': N_FEATURES_OPTIONS,
+            'classify__C': C_OPTIONS,
+            'classify__kernel': KERNELS
+        },
+        {
+            'reduce_dim': [SelectKBest()],
+            'reduce_dim__k': N_FEATURES_OPTIONS,
+            'classify__C': C_OPTIONS,
+            'classify__kernel': KERNELS
+        },
+        {
+            'reduce_dim': [SelectPercentile()],
+            'reduce_dim__percentile': PERCENTILE_OPTIONS,
+            'classify__C': C_OPTIONS,
+            'classify__kernel': KERNELS
+        },
+    ]
+
+    SVC_grid = grid_search.GridSearchCV(pipe, cv=cv, n_jobs=n_jobs, param_grid=SVC_param_grid)
+    return SVC_grid
+    
+"""
+Args:
+    cv (int): Number of cross-validation folds
+    n_jobs(int): Number of jobs to run in parallel
+    
+Returns:
+    GridSearchCV: sklearn.model_selection.GridSearchCV instance for KNN variations; attributes include best_estimator_, best_score_, and best_params_
+"""
+def knn_grid_search(cv, n_jobs):
+    pipe = Pipeline([
+        ('reduce_dim', PCA()),
+        ('classify', KNeighborsClassifier())])
+
+    N_NEIGHBORS = [1, 3, 5, 10, 20]
+    N_FEATURES_OPTIONS = [2, 4, 8]
+    PERCENTILE_OPTIONS = [5, 10, 25, 50]
+ 
+    knn_param_grid = [
+        {
+            'reduce_dim': [PCA(), NMF()],
+            'reduce_dim__n_components': N_FEATURES_OPTIONS,
+            'classify__n_neighbors': N_NEIGHBORS
+        },
+        {
+            'reduce_dim': [SelectKBest()],
+            'reduce_dim__k': N_FEATURES_OPTIONS,
+            'classify__n_neighbors': N_NEIGHBORS
+        },
+        {
+            'reduce_dim': [SelectPercentile()],
+            'reduce_dim__percentile': PERCENTILE_OPTIONS,
+            'classify__n_neighbors': N_NEIGHBORS
+        },
+    ]
+
+    knn_grid = grid_search.GridSearchCV(pipe, cv=cv, n_jobs=n_jobs, param_grid=knn_param_grid)
+    return knn_grid
+
+
 #########################
 #
 # Dataframe adjustments
