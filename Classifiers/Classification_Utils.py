@@ -6,16 +6,30 @@ import itertools
 import matplotlib.pyplot as plt
 import numpy as np
 import re
-from sklearn import grid_search, tree
+from sklearn import tree
 from sklearn.decomposition import PCA, NMF
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.feature_selection import SelectKBest, SelectPercentile
+from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
+from sklearn.feature_selection import SelectFromModel, SelectKBest, SelectPercentile
 from sklearn.metrics import accuracy_score, confusion_matrix
-from sklearn.model_selection import cross_val_predict, cross_val_score
+from sklearn.model_selection import cross_val_predict, cross_val_score, GridSearchCV
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.svm import LinearSVC, SVC
+
+
+#########################
+#
+# Constants
+#
+#########################
+
+ESTIMATORS = [SelectFromModel(RandomForestClassifier()), 
+              SelectFromModel(ExtraTreesClassifier()), 
+              SelectFromModel(LinearSVC(C=0.01, penalty="l1", dual=False))]
+N_FEATURES_OPTIONS = [2, 4, 8]
+PERCENTILE_OPTIONS = [5, 10, 25, 50]
+
 
 #########################
 #
@@ -209,9 +223,14 @@ def svc_grid_search(cv, n_jobs):
             'classify__C': C_OPTIONS,
             'classify__kernel': KERNELS
         },
+        {
+            'reduce_dim': [*ESTIMATORS],
+            'classify__C': C_OPTIONS,
+            'classify__kernel': KERNELS
+        },
     ]
 
-    SVC_grid = grid_search.GridSearchCV(pipe, cv=cv, n_jobs=n_jobs, param_grid=SVC_param_grid)
+    SVC_grid = GridSearchCV(pipe, cv=cv, n_jobs=n_jobs, param_grid=SVC_param_grid)
     return SVC_grid
     
 """
@@ -228,8 +247,6 @@ def knn_grid_search(cv, n_jobs):
         ('classify', KNeighborsClassifier())])
 
     N_NEIGHBORS = [1, 3, 5, 10, 20]
-    N_FEATURES_OPTIONS = [2, 4, 8]
-    PERCENTILE_OPTIONS = [5, 10, 25, 50]
  
     knn_param_grid = [
         {
@@ -247,9 +264,13 @@ def knn_grid_search(cv, n_jobs):
             'reduce_dim__percentile': PERCENTILE_OPTIONS,
             'classify__n_neighbors': N_NEIGHBORS
         },
+        {
+            'reduce_dim': [*ESTIMATORS],
+            'classify__n_neighbors': N_NEIGHBORS
+        },
     ]
 
-    knn_grid = grid_search.GridSearchCV(pipe, cv=cv, n_jobs=n_jobs, param_grid=knn_param_grid)
+    knn_grid = GridSearchCV(pipe, cv=cv, n_jobs=n_jobs, param_grid=knn_param_grid)
     return knn_grid
 
 """
@@ -265,12 +286,9 @@ def rf_grid_search(cv, n_jobs):
         ('reduce_dim', PCA()),
         ('classify', RandomForestClassifier())])
 
-    N_ESTIMATORS=[25, 50, 100, 200]
-    MIN_SAMPLES_SPLIT=[2, 3, 4, 5, 10]
+    N_ESTIMATORS = [25, 50, 100, 200]
+    MIN_SAMPLES_SPLIT = [2, 3, 4, 5, 10]
     
-    N_FEATURES_OPTIONS = [2, 4, 8]
-    PERCENTILE_OPTIONS = [5, 10, 25, 50]
- 
     rf_param_grid = [
         {
             'reduce_dim': [PCA(), NMF()],
@@ -290,9 +308,14 @@ def rf_grid_search(cv, n_jobs):
             'classify__n_estimators': N_ESTIMATORS,
             'classify__min_samples_split': MIN_SAMPLES_SPLIT
         },
+        {
+            'reduce_dim': [*ESTIMATORS],
+            'classify__n_estimators': N_ESTIMATORS,
+            'classify__min_samples_split': MIN_SAMPLES_SPLIT
+        },
     ]
 
-    rf_grid = grid_search.GridSearchCV(pipe, cv=cv, n_jobs=n_jobs, param_grid=rf_param_grid)
+    rf_grid = GridSearchCV(pipe, cv=cv, n_jobs=n_jobs, param_grid=rf_param_grid)
     return rf_grid
 
 #########################
