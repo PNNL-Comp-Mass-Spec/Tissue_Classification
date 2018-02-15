@@ -167,6 +167,8 @@ def show_prediction_probabilities(model, data, idx):
 #########################
 #
 # Grid Searches for Classifier hyperparameter tuning
+# 
+# Each grid search finds the best combination of dimensionality reduction and classification parameters for a given model
 #
 #########################
 
@@ -425,3 +427,38 @@ def show_confusion_matrices(y_test, y_pred, groups):
                           title='Normalized confusion matrix')
 
     plt.show()
+    
+    
+"""
+Args:
+    df (dataframe)
+    labels (list of strings): List of column labels for each column in df
+    
+Returns:
+    dict({string: list of strings}): key is the name of an organ/tissue, value is a sorted list of the top proteins expressed in that organ/tissue by mean abundance
+"""
+def get_descending_abundances(df, labels):
+    labelled_df = df
+    labelled_df.columns = labels
+    
+    label_to_proteins = {} # {label: list of proteins}
+    for label in labels:
+        sub_df = labelled_df[label]
+        sorted_proteins = sub_df.mean(axis=1).sort_values(ascending=False)
+        label_to_proteins[label] = sorted_proteins.index.values
+        
+    return label_to_proteins
+        
+"""
+Args:
+    labels_to_proteins (dict {string : list of strings}): output from get_descending_abundances
+    label (string): organ/tissue
+    n (int): number of proteins to get
+
+Returns:
+    list of strings: top n proteins by abundance for the given organ/tissue
+"""
+def n_most_abundant(labels_to_proteins, label, n):
+    
+    top_proteins = labels_to_proteins[label][:n] 
+    return top_proteins
