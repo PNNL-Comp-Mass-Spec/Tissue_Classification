@@ -24,10 +24,14 @@ from sklearn.svm import LinearSVC, SVC
 #
 #########################
 
-ESTIMATORS = [SelectFromModel(RandomForestClassifier()), 
-              SelectFromModel(ExtraTreesClassifier()), 
-              SelectFromModel(LinearSVC(C=0.01, penalty="l1", dual=False))]
+#ESTIMATORS = [SelectFromModel(RandomForestClassifier()), 
+#              SelectFromModel(ExtraTreesClassifier()), 
+#              SelectFromModel(LinearSVC(C=0.01, penalty="l1", dual=False))]
+ESTIMATORS = [RandomForestClassifier(), 
+              ExtraTreesClassifier(), 
+              LinearSVC(C=0.01, penalty="l1", dual=False)]
 N_FEATURES_OPTIONS = [2, 4, 8]
+K_FEATURES_OPTIONS = [10, 100, 1000]
 PERCENTILE_OPTIONS = [5, 10, 25, 50]
 
 
@@ -194,7 +198,7 @@ Args:
 Returns:
     GridSearchCV: sklearn.model_selection.GridSearchCV instance for SVC classification variations; attributes include best_estimator_, best_score_, and best_params_
 """
-def svc_grid_search(cv, n_jobs):
+def svc_grid_search(cv, n_jobs, scoring=None):
     pipe = Pipeline([
         ('reduce_dim', PCA()),
         ('classify', SVC(probability=True))])
@@ -213,7 +217,7 @@ def svc_grid_search(cv, n_jobs):
         },
         {
             'reduce_dim': [SelectKBest()],
-            'reduce_dim__k': N_FEATURES_OPTIONS,
+            'reduce_dim__k': K_FEATURES_OPTIONS,
             'classify__C': C_OPTIONS,
             'classify__kernel': KERNELS
         },
@@ -224,13 +228,14 @@ def svc_grid_search(cv, n_jobs):
             'classify__kernel': KERNELS
         },
         {
-            'reduce_dim': [*ESTIMATORS],
+            'reduce_dim': [SelectFromModel(RandomForestClassifier())],
+            'reduce_dim__estimator': [*ESTIMATORS],
             'classify__C': C_OPTIONS,
             'classify__kernel': KERNELS
         },
     ]
 
-    SVC_grid = GridSearchCV(pipe, cv=cv, n_jobs=n_jobs, param_grid=SVC_param_grid)
+    SVC_grid = GridSearchCV(pipe, cv=cv, n_jobs=n_jobs, param_grid=SVC_param_grid, scoring=scoring)
     return SVC_grid
     
 """
@@ -241,7 +246,7 @@ Args:
 Returns:
     GridSearchCV: sklearn.model_selection.GridSearchCV instance for KNN variations; attributes include best_estimator_, best_score_, and best_params_
 """
-def knn_grid_search(cv, n_jobs):
+def knn_grid_search(cv, n_jobs, scoring=None):
     pipe = Pipeline([
         ('reduce_dim', PCA()),
         ('classify', KNeighborsClassifier())])
@@ -256,7 +261,7 @@ def knn_grid_search(cv, n_jobs):
         },
         {
             'reduce_dim': [SelectKBest()],
-            'reduce_dim__k': N_FEATURES_OPTIONS,
+            'reduce_dim__k': K_FEATURES_OPTIONS,
             'classify__n_neighbors': N_NEIGHBORS
         },
         {
@@ -265,12 +270,13 @@ def knn_grid_search(cv, n_jobs):
             'classify__n_neighbors': N_NEIGHBORS
         },
         {
-            'reduce_dim': [*ESTIMATORS],
+            'reduce_dim': [SelectFromModel(RandomForestClassifier())],
+            'reduce_dim__estimator': [*ESTIMATORS],
             'classify__n_neighbors': N_NEIGHBORS
         },
     ]
 
-    knn_grid = GridSearchCV(pipe, cv=cv, n_jobs=n_jobs, param_grid=knn_param_grid)
+    knn_grid = GridSearchCV(pipe, cv=cv, n_jobs=n_jobs, param_grid=knn_param_grid, scoring=scoring)
     return knn_grid
 
 """
@@ -281,7 +287,7 @@ Args:
 Returns:
     GridSearchCV: sklearn.model_selection.GridSearchCV instance for RandomForest variations; attributes include best_estimator_, best_score_, and best_params_
 """
-def rf_grid_search(cv, n_jobs):
+def rf_grid_search(cv, n_jobs, scoring=None):
     pipe = Pipeline([
         ('reduce_dim', PCA()),
         ('classify', RandomForestClassifier())])
@@ -298,7 +304,7 @@ def rf_grid_search(cv, n_jobs):
         },
         {
             'reduce_dim': [SelectKBest()],
-            'reduce_dim__k': N_FEATURES_OPTIONS,
+            'reduce_dim__k': K_FEATURES_OPTIONS,
             'classify__n_estimators': N_ESTIMATORS,
             'classify__min_samples_split': MIN_SAMPLES_SPLIT
         },
@@ -309,13 +315,14 @@ def rf_grid_search(cv, n_jobs):
             'classify__min_samples_split': MIN_SAMPLES_SPLIT
         },
         {
-            'reduce_dim': [*ESTIMATORS],
+            'reduce_dim': [SelectFromModel(RandomForestClassifier())],
+            'reduce_dim__estimator': [*ESTIMATORS],
             'classify__n_estimators': N_ESTIMATORS,
             'classify__min_samples_split': MIN_SAMPLES_SPLIT
         },
     ]
 
-    rf_grid = GridSearchCV(pipe, cv=cv, n_jobs=n_jobs, param_grid=rf_param_grid)
+    rf_grid = GridSearchCV(pipe, cv=cv, n_jobs=n_jobs, param_grid=rf_param_grid, scoring=scoring)
     return rf_grid
 
 #########################
@@ -388,7 +395,7 @@ def fit_new_data(original_df, new_df):
 #########################
 
 """
-From SKLearn ConfusionMatrix documentation
+From SKLearn ConfusionMatrix documentation:
 http://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html#sphx-glr-auto-examples-model-selection-plot-confusion-matrix-py
 """
 def plot_confusion_matrix(cm, classes,
@@ -426,7 +433,7 @@ def plot_confusion_matrix(cm, classes,
     plt.xlabel('Predicted label')
 
 """
-From SKLearn ConfusionMatrix documentation
+From SKLearn ConfusionMatrix documentation:
 http://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html#sphx-glr-auto-examples-model-selection-plot-confusion-matrix-py
 
 Args:
