@@ -505,17 +505,17 @@ Args:
     labels (list of strings): list of corresponding column labels for df
     
 Returns:
-    dict: keys are labels, values are lists of (protein, meandiff) tuples
+    dict ({string: list(string, float)}): keys are labels, values are lists of (protein, meandiff) tuples
 """
 def make_tukey_dict(df, labels):
     
     tukeys = [] # tukeys[i] == tukey results for protein in df row i
     proteins= df.index.values.tolist()
 
-    # Build up list of tukey results
+    # Build up list of tukey results for each protein
     for i in range(len(df)): 
         tukey = pairwise_tukeyhsd(endog = df.iloc[i, :], # Row of data
-                                  groups = labels, # Groups
+                                  groups = labels, # List of labels corresponding to df columns
                                   alpha = 0.05) # Significance level
         tukeys.append(tukey)
     
@@ -530,7 +530,7 @@ def make_tukey_dict(df, labels):
     
     # If we want to get the top n proteins enriched for an organ:
     # dict: {organ : list of (protein, meandiff) tuples}
-    # {'brain' : [(1433B_Mouse, 1.8677), (4341Z_Mouse, 2.56)]}
+    # {'brain' : [('1433B', 1.8677), ('4341Z', 2.56)]}
     # Get value for organ, sort by tuple[1] descending, return first n elements in list
 
     # Initialize all groups with empty list
@@ -538,14 +538,14 @@ def make_tukey_dict(df, labels):
     for group in all_groups:
         enriched_dict[group] = []
 
-    ### Loop through all proteins
+    # Loop through all tukey results and extract info
     for i in range(len(df)): 
         mean_diffs = tukeys[i].meandiffs
-        enhanced_in = tukeys[i].groupsunique.tolist()
+        enhanced_in = tukeys[i].groupsunique.tolist() # Start with all organs
 
-        diffs = group_to_meandiffs(group_pairs, i, enhanced_in, mean_diffs, tukeys)
+        diffs = group_to_meandiffs(all_groups, group_pairs, i, enhanced_in, mean_diffs, tukeys)
         for key in diffs.keys():
-            diffs[key] = np.mean(np.fabs(diffs[key]))
+            diffs[key] = np.mean(diffs[key])
 
         for organ in enhanced_in:
             pair = (proteins[i], diffs[organ])
@@ -555,36 +555,38 @@ def make_tukey_dict(df, labels):
 
 # For each comparison, keep track of which organs have always passed t-test
 # For those always passing, build up list of meandiffs observed
-def group_to_meandiffs(pairs, protein, enhanced_in, mean_diffs, tukeys):
+def group_to_meandiffs(tissues, pairs, protein, enhanced_in, mean_diffs, tukeys):
     
     diffs = {} # 'brain' : [-2.34, -1.87, ...]
+    for tissue in tissues:
+        diffs[tissue] = []
 
     for i in range(len(pairs)):
         g1 = pairs[i][0]
         g2 = pairs[i][1]
-        if tukeys[protein].reject[i] == False:
+        diff = mean_diffs[i]
+        
+        if tukeys[protein].reject[i] == False: # Don't reject null hypothesis
             if g1 in enhanced_in:
                 enhanced_in.remove(g1)
             if g2 in enhanced_in:
                 enhanced_in.remove(g2)
-        else:
-            if g1 in diffs:
-                diffs[g1].append(mean_diffs[i])
-            else:
-                diffs[g1] = [mean_diffs[i]]
-            if g2 in diffs:
-                diffs[g2].append(mean_diffs[i])
-            else:
-                diffs[g2] = [mean_diffs[i]]
+        else: # Reject null hypothesis
+            if diff < 0:
+                diffs[g1].append(np.fabs(diff))
+            elif diff > 0:
+                diffs[g2].append(diff)
                 
     return diffs
 
 def getSecond(tup):
+    if np.isnan(tup[1]):
+        return np.NINF
     return tup[1]
 
 def top_n_enriched(n, organ, tukey_dict):
     all_proteins = tukey_dict[organ]
-    all_proteins_sorted = sorted(all_proteins, key = getSecond, reverse = True)
+    all_proteins_sorted = sorted(all_proteins, key=getSecond, reverse=True)
     return all_proteins_sorted[:n]
 
 """
