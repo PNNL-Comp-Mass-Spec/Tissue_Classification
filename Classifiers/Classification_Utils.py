@@ -9,7 +9,7 @@ import re
 from sklearn import tree
 from sklearn.decomposition import PCA, NMF
 from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
-from sklearn.feature_selection import SelectFromModel, SelectKBest, SelectPercentile
+from sklearn.feature_selection import RFECV, SelectFromModel, SelectKBest, SelectPercentile
 from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.model_selection import cross_val_predict, cross_val_score, GridSearchCV
 from sklearn.naive_bayes import GaussianNB
@@ -233,6 +233,12 @@ def svc_grid_search(cv, n_jobs, scoring=None):
             'classify__C': C_OPTIONS,
             'classify__kernel': KERNELS
         },
+#        {
+#            'reduce_dim': [rfecv(randomforestclassifier())],
+#            'reduce_dim__estimator': [*estimators],
+#            'classify__C': C_OPTIONS,
+#            'classify__kernel': KERNELS
+#        },
     ]
 
     SVC_grid = GridSearchCV(pipe, cv=cv, n_jobs=n_jobs, param_grid=SVC_param_grid, scoring=scoring)
