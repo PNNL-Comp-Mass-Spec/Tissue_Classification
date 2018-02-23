@@ -233,12 +233,6 @@ def svc_grid_search(cv, n_jobs, scoring=None):
             'classify__C': C_OPTIONS,
             'classify__kernel': KERNELS
         },
-#        {
-#            'reduce_dim': [rfecv(randomforestclassifier())],
-#            'reduce_dim__estimator': [*estimators],
-#            'classify__C': C_OPTIONS,
-#            'classify__kernel': KERNELS
-#        },
     ]
 
     SVC_grid = GridSearchCV(pipe, cv=cv, n_jobs=n_jobs, param_grid=SVC_param_grid, scoring=scoring)
