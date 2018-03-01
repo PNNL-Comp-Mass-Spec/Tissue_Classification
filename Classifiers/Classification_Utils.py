@@ -8,8 +8,10 @@ import numpy as np
 import re
 from sklearn import tree
 from sklearn.decomposition import PCA, NMF
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
 from sklearn.feature_selection import RFECV, SelectFromModel, SelectKBest, SelectPercentile
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.model_selection import cross_val_predict, cross_val_score, GridSearchCV
 from sklearn.naive_bayes import GaussianNB
@@ -118,6 +120,20 @@ def bayes_gaussian_model_crossval(data, labels, num_splits):
     gnb = GaussianNB()
     return fit_model(gnb, data, labels, num_splits)
 
+"""
+Args:
+    data (dataframe): contains all data that will be used to fit the model
+    labels (list of strings): corresponding labels for each row of data
+    num_splits (int): number of train-test splits to test
+
+Returns:
+    Logistic Regression classification model fitted on all inputted data
+    Prints mean cross-validation score and 95% confidence interval
+"""
+def logistic_regression__model_crossval(data, labels, num_splits):
+    lr = LogisticRegression()
+    return fit_model(lr, data, labels, num_splits)
+
 
 """
 Args:
@@ -210,7 +226,7 @@ def svc_grid_search(cv, n_jobs, scoring=None):
 
     SVC_param_grid = [
         {
-            'reduce_dim': [PCA(), NMF()],
+            'reduce_dim': [PCA(), NMF(), LinearDiscriminantAnalysis()],
             'reduce_dim__n_components': N_FEATURES_OPTIONS,
             'classify__C': C_OPTIONS,
             'classify__kernel': KERNELS
@@ -255,7 +271,7 @@ def knn_grid_search(cv, n_jobs, scoring=None):
  
     knn_param_grid = [
         {
-            'reduce_dim': [PCA(), NMF()],
+            'reduce_dim': [PCA(), NMF(), LinearDiscriminantAnalysis()],
             'reduce_dim__n_components': N_FEATURES_OPTIONS,
             'classify__n_neighbors': N_NEIGHBORS
         },
@@ -297,7 +313,7 @@ def rf_grid_search(cv, n_jobs, scoring=None):
     
     rf_param_grid = [
         {
-            'reduce_dim': [PCA(), NMF()],
+            'reduce_dim': [PCA(), NMF(), LinearDiscriminantAnalysis()],
             'reduce_dim__n_components': N_FEATURES_OPTIONS,
             'classify__n_estimators': N_ESTIMATORS,
             'classify__min_samples_split': MIN_SAMPLES_SPLIT
