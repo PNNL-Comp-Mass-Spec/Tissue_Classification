@@ -368,7 +368,7 @@ def draw_pca_graph2(column_names, pca_data, base_dir, color_dict, per_var, label
         patch = mpatches.Patch(color=color, label=organ)
         new_handles.append(patch)
     
-    lgd = ax.legend(handles=new_handles, loc='upper center', bbox_to_anchor=(.5, -.1), ncol=1)
+    lgd = ax.legend(handles=new_handles, loc=2, bbox_to_anchor=(1, 1), ncol=1)
     fig.show()
     fig.savefig(output_path, bbox_inches="tight", bbox_extra_artists=(lgd,))
     fig.clf()
