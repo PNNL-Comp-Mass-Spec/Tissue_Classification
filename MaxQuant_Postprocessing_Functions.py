@@ -1,6 +1,7 @@
 ## Post Processing of MaxQuant output (proteinGroups.txt or peptides.txt)
 
 import itertools
+import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 from numpy import logical_or
 import numpy as np
@@ -334,11 +335,43 @@ def draw_pca_graph(column_names, pca_data, base_dir, color_dict, per_var, labels
     for column in pca_df.index:
         plt.scatter(pca_df.PC1.loc[column], pca_df.PC2.loc[column], color = color_dict[column])
         plt.annotate(column, (pca_df.PC1.loc[column], pca_df.PC2.loc[column]), color = color_dict[column])
-
+        
     output_path = base_dir + 'PCA.pdf'
+
     plt.savefig(output_path, bbox_inches="tight")
     plt.clf()
 
+"""
+Draws a PCA graph with legend below
+"""
+    
+def draw_pca_graph2(column_names, pca_data, base_dir, color_dict, per_var, labels, all_organs, organs_to_columns):
+    
+    pca_df = pd.DataFrame(pca_data, index = column_names, columns = labels)
+    
+    fig = plt.figure(1)
+    ax = fig.add_subplot(111)
+ 
+    plt.title('PCA Graph')
+    plt.xlabel('PC1 - {0}%'.format(per_var[0]))
+    plt.ylabel('PC2 - {0}%'.format(per_var[1]))
+ 
+    for column in column_names:
+        ax.scatter(pca_df.PC1.loc[column], pca_df.PC2.loc[column], color=color_dict[column])
+        
+    output_path = base_dir + 'PCA.pdf'
+    
+    new_handles = []
+    for organ in all_organs:
+        col = organs_to_columns[organ][0]
+        color = color_dict[col]
+        patch = mpatches.Patch(color=color, label=organ)
+        new_handles.append(patch)
+    
+    lgd = ax.legend(handles=new_handles, loc='upper center', bbox_to_anchor=(.5, -.1), ncol=1)
+    fig.show()
+    fig.savefig(output_path, bbox_inches="tight", bbox_extra_artists=(lgd,))
+    fig.clf()
 
 #########################
 #
