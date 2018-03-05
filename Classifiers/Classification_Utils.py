@@ -14,7 +14,7 @@ from sklearn.feature_selection import RFECV, SelectFromModel, SelectKBest, Selec
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.model_selection import cross_val_predict, cross_val_score, GridSearchCV
-from sklearn.naive_bayes import GaussianNB
+from sklearn.naive_bayes import GaussianNB, MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.svm import LinearSVC, SVC
@@ -110,10 +110,24 @@ Args:
     num_splits (int): number of train-test splits to test
 
 Returns:
-    Naive Bayes Gaussian classification model fitted on all inputted data
+    Naive Bayes Multinomial classification model fitted on all inputted data
     Prints mean cross-validation score and 95% confidence interval
 """
 def bayes_gaussian_model_crossval(data, labels, num_splits):
+    mnb = MultinomialNB()
+    return fit_model(mnb, data, labels, num_splits)
+
+"""
+Args:
+    data (dataframe): contains all data that will be used to fit the model
+    labels (list of strings): corresponding labels for each row of data
+    num_splits (int): number of train-test splits to test
+
+Returns:
+    Naive Bayes Gaussian classification model fitted on all inputted data
+    Prints mean cross-validation score and 95% confidence interval
+"""
+def bayes_multinomial_model_crossval(data, labels, num_splits):
     gnb = GaussianNB()
     return fit_model(gnb, data, labels, num_splits)
 
