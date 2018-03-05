@@ -9,7 +9,7 @@ import re
 from sklearn import tree
 from sklearn.decomposition import PCA, NMF
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
-from sklearn.ensemble import RandomForestClassifier, ExtraTreesClassifier
+from sklearn.ensemble import ExtraTreesClassifier, GradientBoostingClassifier, RandomForestClassifier
 from sklearn.feature_selection import RFECV, SelectFromModel, SelectKBest, SelectPercentile
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, confusion_matrix
@@ -141,7 +141,7 @@ Returns:
     Logistic Regression classification model fitted on all inputted data
     Prints mean cross-validation score and 95% confidence interval
 """
-def logistic_regression__model_crossval(data, labels, num_splits):
+def logistic_regression_model_crossval(data, labels, num_splits):
     lr = LogisticRegression()
     return fit_model(lr, data, labels, num_splits)
 
@@ -168,6 +168,21 @@ def SVC_models_crossval(data, labels, num_splits):
     model_list = list(models)
 
     return model_list
+
+"""
+Args:
+    data (dataframe): contains all data that will be used to fit the model
+    labels (list of strings): corresponding labels for each row of data
+    num_splits (int): number of train-test splits to test
+
+Returns:
+    Gradient Boosting Classifier model fitted on all inputted data
+    Prints mean cross-validation score and 95% confidence interval
+"""
+def gradient_boosting_crossval(data, labels, num_splits):
+    grc = GradientBoostingClassifier()
+    return fit_model(grc, data, labels, num_splits)
+
 
 """
 Use a classification model to make label predictions on test data set
