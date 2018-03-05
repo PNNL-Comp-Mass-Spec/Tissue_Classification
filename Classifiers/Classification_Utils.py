@@ -26,9 +26,6 @@ from sklearn.svm import LinearSVC, SVC
 #
 #########################
 
-#ESTIMATORS = [SelectFromModel(RandomForestClassifier()), 
-#              SelectFromModel(ExtraTreesClassifier()), 
-#              SelectFromModel(LinearSVC(C=0.01, penalty="l1", dual=False))]
 ESTIMATORS = [RandomForestClassifier(), 
               ExtraTreesClassifier(), 
               LinearSVC(C=0.01, penalty="l1", dual=False)]
