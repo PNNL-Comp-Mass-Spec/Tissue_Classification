@@ -290,37 +290,14 @@ Returns:
     GridSearchCV: sklearn.model_selection.GridSearchCV instance for KNN variations; attributes include best_estimator_, best_score_, and best_params_
 """
 def knn_grid_search(cv, n_jobs, scoring=None):
-    pipe = Pipeline([
-        ('reduce_dim', PCA()),
-        ('classify', KNeighborsClassifier())])
 
     N_NEIGHBORS = [1, 3, 5, 10, 20]
  
-    knn_param_grid = [
-        {
-            'reduce_dim': [PCA(), NMF(), LinearDiscriminantAnalysis()],
-            'reduce_dim__n_components': N_FEATURES_OPTIONS,
+    knn_grid = {
             'classify__n_neighbors': N_NEIGHBORS
-        },
-        {
-            'reduce_dim': [SelectKBest()],
-            'reduce_dim__k': K_FEATURES_OPTIONS,
-            'classify__n_neighbors': N_NEIGHBORS
-        },
-        {
-            'reduce_dim': [SelectPercentile()],
-            'reduce_dim__percentile': PERCENTILE_OPTIONS,
-            'classify__n_neighbors': N_NEIGHBORS
-        },
-        {
-            'reduce_dim': [SelectFromModel(RandomForestClassifier())],
-            'reduce_dim__estimator': [*ESTIMATORS],
-            'classify__n_neighbors': N_NEIGHBORS
-        },
-    ]
+    }
 
-    knn_grid = GridSearchCV(pipe, cv=cv, n_jobs=n_jobs, param_grid=knn_param_grid, scoring=scoring)
-    return knn_grid
+    return grid_search(cv, n_jobs, KNeighborsClassifier(), knn_grid, scoring=scoring)
 
 """
 Args:
@@ -331,42 +308,16 @@ Returns:
     GridSearchCV: sklearn.model_selection.GridSearchCV instance for RandomForest variations; attributes include best_estimator_, best_score_, and best_params_
 """
 def rf_grid_search(cv, n_jobs, scoring=None):
-    pipe = Pipeline([
-        ('reduce_dim', PCA()),
-        ('classify', RandomForestClassifier())])
-
+    
     N_ESTIMATORS = [25, 50, 100, 200]
     MIN_SAMPLES_SPLIT = [2, 3, 4, 5, 10]
     
-    rf_param_grid = [
-        {
-            'reduce_dim': [PCA(), NMF(), LinearDiscriminantAnalysis()],
-            'reduce_dim__n_components': N_FEATURES_OPTIONS,
+    rf_grid = {
             'classify__n_estimators': N_ESTIMATORS,
             'classify__min_samples_split': MIN_SAMPLES_SPLIT
-        },
-        {
-            'reduce_dim': [SelectKBest()],
-            'reduce_dim__k': K_FEATURES_OPTIONS,
-            'classify__n_estimators': N_ESTIMATORS,
-            'classify__min_samples_split': MIN_SAMPLES_SPLIT
-        },
-        {
-            'reduce_dim': [SelectPercentile()],
-            'reduce_dim__percentile': PERCENTILE_OPTIONS,
-            'classify__n_estimators': N_ESTIMATORS,
-            'classify__min_samples_split': MIN_SAMPLES_SPLIT
-        },
-        {
-            'reduce_dim': [SelectFromModel(RandomForestClassifier())],
-            'reduce_dim__estimator': [*ESTIMATORS],
-            'classify__n_estimators': N_ESTIMATORS,
-            'classify__min_samples_split': MIN_SAMPLES_SPLIT
-        },
-    ]
-
-    rf_grid = GridSearchCV(pipe, cv=cv, n_jobs=n_jobs, param_grid=rf_param_grid, scoring=scoring)
-    return rf_grid
+    }
+    
+    return grid_search(cv, n_jobs, RandomForestClassifier(), rf_grid, scoring=scoring)
 
 
 """
@@ -378,47 +329,53 @@ Returns:
     GridSearchCV: sklearn.model_selection.GridSearchCV instance for GradientBoostingClassifier variations; attributes include best_estimator_, best_score_, and best_params_
 """
 def gbc_grid_search(cv, n_jobs, scoring=None):
+    
+    N_ESTIMATORS = [25, 50, 100, 200]
+    MIN_SAMPLES_SPLIT = [2, 3, 4, 5, 10]
+    MAX_DEPTH = range(5,16,2)
+    
+    gbc_grid = {
+            'classify__n_estimators': N_ESTIMATORS,
+            'classify__min_samples_split': MIN_SAMPLES_SPLIT,
+            'classify__max_depth': MAX_DEPTH 
+    }
+    
+    return grid_search(cv, n_jobs, GradientBoostingClassifier(), gbc_grid, scoring=scoring)
+
+
+def grid_search(cv, n_jobs, model, model_grid, scoring=None):
     pipe = Pipeline([
         ('reduce_dim', PCA()),
-        ('classify', GradientBoostingClassifier())])
+        ('classify', model)])
 
     N_ESTIMATORS = [25, 50, 100, 200]
     MIN_SAMPLES_SPLIT = [2, 3, 4, 5, 10]
     MAX_DEPTH = range(5,16,2)
     
-    gbc_param_grid = [
+    param_grid = [
         {
-            'reduce_dim': [PCA(), NMF(), LinearDiscriminantAnalysis()],
+            'reduce_dim': [PCA(), NMF()],
             'reduce_dim__n_components': N_FEATURES_OPTIONS,
-            'classify__n_estimators': N_ESTIMATORS,
-            'classify__min_samples_split': MIN_SAMPLES_SPLIT,
-            'classify__max_depth': MAX_DEPTH
         },
         {
             'reduce_dim': [SelectKBest()],
             'reduce_dim__k': K_FEATURES_OPTIONS,
-            'classify__n_estimators': N_ESTIMATORS,
-            'classify__min_samples_split': MIN_SAMPLES_SPLIT,
-            'classify__max_depth': MAX_DEPTH
         },
         {
             'reduce_dim': [SelectPercentile()],
             'reduce_dim__percentile': PERCENTILE_OPTIONS,
-            'classify__n_estimators': N_ESTIMATORS,
-            'classify__min_samples_split': MIN_SAMPLES_SPLIT,
-            'classify__max_depth': MAX_DEPTH
         },
         {
             'reduce_dim': [SelectFromModel(RandomForestClassifier())],
             'reduce_dim__estimator': [*ESTIMATORS],
-            'classify__n_estimators': N_ESTIMATORS,
-            'classify__min_samples_split': MIN_SAMPLES_SPLIT,
-            'classify__max_depth': MAX_DEPTH
         },
     ]
+    
+    for feature_grid in param_grid:
+        feature_grid.update(model_grid)
 
-    gbc_grid = GridSearchCV(pipe, cv=cv, n_jobs=n_jobs, param_grid=gbc_param_grid, scoring=scoring)
-    return gbc_grid
+    grid = GridSearchCV(pipe, cv=cv, n_jobs=n_jobs, param_grid=param_grid, scoring=scoring)
+    return grid
 
 
 #########################
