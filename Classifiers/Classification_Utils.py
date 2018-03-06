@@ -367,6 +367,59 @@ def rf_grid_search(cv, n_jobs, scoring=None):
     rf_grid = GridSearchCV(pipe, cv=cv, n_jobs=n_jobs, param_grid=rf_param_grid, scoring=scoring)
     return rf_grid
 
+
+"""
+Args:
+    cv (int): Number of cross-validation folds
+    n_jobs(int): Number of jobs to run in parallel
+    
+Returns:
+    GridSearchCV: sklearn.model_selection.GridSearchCV instance for GradientBoostingClassifier variations; attributes include best_estimator_, best_score_, and best_params_
+"""
+def gbc_grid_search(cv, n_jobs, scoring=None):
+    pipe = Pipeline([
+        ('reduce_dim', PCA()),
+        ('classify', GradientBoostingClassifier())])
+
+    N_ESTIMATORS = [25, 50, 100, 200]
+    MIN_SAMPLES_SPLIT = [2, 3, 4, 5, 10]
+    MAX_DEPTH = range(5,16,2)
+    
+    gbc_param_grid = [
+        {
+            'reduce_dim': [PCA(), NMF(), LinearDiscriminantAnalysis()],
+            'reduce_dim__n_components': N_FEATURES_OPTIONS,
+            'classify__n_estimators': N_ESTIMATORS,
+            'classify__min_samples_split': MIN_SAMPLES_SPLIT,
+            'classify__max_depth': MAX_DEPTH
+        },
+        {
+            'reduce_dim': [SelectKBest()],
+            'reduce_dim__k': K_FEATURES_OPTIONS,
+            'classify__n_estimators': N_ESTIMATORS,
+            'classify__min_samples_split': MIN_SAMPLES_SPLIT,
+            'classify__max_depth': MAX_DEPTH
+        },
+        {
+            'reduce_dim': [SelectPercentile()],
+            'reduce_dim__percentile': PERCENTILE_OPTIONS,
+            'classify__n_estimators': N_ESTIMATORS,
+            'classify__min_samples_split': MIN_SAMPLES_SPLIT,
+            'classify__max_depth': MAX_DEPTH
+        },
+        {
+            'reduce_dim': [SelectFromModel(RandomForestClassifier())],
+            'reduce_dim__estimator': [*ESTIMATORS],
+            'classify__n_estimators': N_ESTIMATORS,
+            'classify__min_samples_split': MIN_SAMPLES_SPLIT,
+            'classify__max_depth': MAX_DEPTH
+        },
+    ]
+
+    gbc_grid = GridSearchCV(pipe, cv=cv, n_jobs=n_jobs, param_grid=gbc_param_grid, scoring=scoring)
+    return gbc_grid
+
+
 #########################
 #
 # Dataframe adjustments
