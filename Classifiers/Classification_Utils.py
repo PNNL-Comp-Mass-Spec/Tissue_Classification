@@ -5,6 +5,7 @@ Provides functions to package together common classification steps
 import itertools
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import re
 from sklearn import tree
 from sklearn.decomposition import PCA, NMF
@@ -31,7 +32,7 @@ ESTIMATORS = [RandomForestClassifier(),
               LinearSVC(C=0.01, penalty="l1", dual=False)]
 N_FEATURES_OPTIONS = [2, 4, 8]
 K_FEATURES_OPTIONS = [10, 100, 1000]
-PERCENTILE_OPTIONS = [5, 10, 25, 50]
+PERCENTILE_OPTIONS = [5, 10, 25, 50, 75, 90, 100]
 
 
 #########################
@@ -427,6 +428,29 @@ def gbc_grid_search(cv, n_jobs, scoring=None):
 #########################
 
 """
+Args:
+    file_paths (list of strings): list of file paths to csvs 
+    
+Returns:
+    dataframe containing data from all csvs referenced by file_paths. Dataframe index is 'Peptide'; each column represents a single sample.
+"""
+def combine_csvs(file_paths):
+    
+    dfs = []
+
+    for file in file_paths:
+        df = pd.read_csv(file, sep='\t', lineterminator='\r')
+        dfs.append(df)
+
+    combined_df = pd.DataFrame()
+    for df in dfs:
+        df.set_index('Peptide', inplace=True)
+        combined_df = combined_df.join(df)
+        
+    return combined_df
+
+
+"""
 Rename columns so that all instances of "before" are replaced with "after"
 
 Example usage:
@@ -480,7 +504,8 @@ Returns:
     dataframe: new_df joined to the features of the training data. This dataframe can now be classified by a model trained with original_df
 """
 def fit_new_data(original_df, new_df):
-    return original_df.iloc[:,:0].join(new_df)
+    #return original_df.iloc[:,:0].join(new_df)
+    return original_df.drop(original_df.columns[:], axis=1).join(new_df)
 
 
 #########################
