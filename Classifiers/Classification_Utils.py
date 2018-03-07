@@ -242,44 +242,16 @@ Returns:
     GridSearchCV: sklearn.model_selection.GridSearchCV instance for SVC classification variations; attributes include best_estimator_, best_score_, and best_params_
 """
 def svc_grid_search(cv, n_jobs, scoring=None):
-    pipe = Pipeline([
-        ('reduce_dim', PCA()),
-        ('classify', SVC(probability=True))])
 
-    N_FEATURES_OPTIONS = [2, 4, 8]
     C_OPTIONS = [1, 10, 100, 1000]
-    PERCENTILE_OPTIONS = [5, 10, 25, 50]
     KERNELS = ['linear', 'rbf', 'poly']
 
-    SVC_param_grid = [
-        {
-            'reduce_dim': [PCA(), NMF(), LinearDiscriminantAnalysis()],
-            'reduce_dim__n_components': N_FEATURES_OPTIONS,
+    svc_grid = {
             'classify__C': C_OPTIONS,
             'classify__kernel': KERNELS
-        },
-        {
-            'reduce_dim': [SelectKBest()],
-            'reduce_dim__k': K_FEATURES_OPTIONS,
-            'classify__C': C_OPTIONS,
-            'classify__kernel': KERNELS
-        },
-        {
-            'reduce_dim': [SelectPercentile()],
-            'reduce_dim__percentile': PERCENTILE_OPTIONS,
-            'classify__C': C_OPTIONS,
-            'classify__kernel': KERNELS
-        },
-        {
-            'reduce_dim': [SelectFromModel(RandomForestClassifier())],
-            'reduce_dim__estimator': [*ESTIMATORS],
-            'classify__C': C_OPTIONS,
-            'classify__kernel': KERNELS
-        },
-    ]
+    }
 
-    SVC_grid = GridSearchCV(pipe, cv=cv, n_jobs=n_jobs, param_grid=SVC_param_grid, scoring=scoring)
-    return SVC_grid
+    return grid_search(cv, n_jobs, SVC(probability=True), svc_grid, scoring=scoring)
     
 """
 Args:
