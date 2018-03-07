@@ -479,23 +479,17 @@ def pairwise_transform(df):
     
     new_indices = []
     new_data = {}
-
-    # For each sample:
-    # For each pair of peptides:
-        # Create new index value 'i/j'
-        # Calculate ratio
-        # Add ratio to corresponding data    
     
-    for col in df.columns:
-        for i in index:
+    for col in df.columns:                             # For each sample
+        for i in index:                                # For each pair of peptides
             for j in index:
-                ratio = df.loc[i, col]/df.loc[j, col]
-                new_index = i + '/' + j
+                ratio = df.loc[i, col]/df.loc[j, col]  # Calculate ratio
+                new_index = i + '/' + j                # Create new index value 'i/j'
                 if new_index not in new_indices:
-                    new_indices.append(new_index)
+                    new_indices.append(new_index)      # Add new index to list
 
-                data = new_data.get(col, list())
-                data.append(ratio)
+                data = new_data.get(col, list())       # Add ratio to corresponding data
+                data.append(ratio) 
 
                 new_data[col] = data
 
