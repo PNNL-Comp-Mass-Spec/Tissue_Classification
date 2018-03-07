@@ -330,6 +330,7 @@ def mlp_grid_search(cv, n_jobs, scoring=None):
         'classify__hidden_layer_sizes': [(10,), (100,), (500,), (1000,)],
         'classify__tol': [1e-2, 1e-3, 1e-4, 1e-5, 1e-6],
         #'classify__epsilon': [1e-3, 1e-7, 1e-8, 1e-9, 1e-8],
+        #'classify__activation': ['identity', 'logistic', 'tanh', 'relu'],
         'classify__max_iter': [300, 500],
         'classify__solver': ['lbfgs', 'sgd', 'adam']
     }
@@ -445,6 +446,45 @@ def get_labels(df, columns, organ_to_columns):
         
     return labels
 
+"""
+Args:
+    df (dataframe): rows are peptide/proteins, columns are samples, data = abundance values
+    
+Returns:
+    dataframe transformed so that rows represent all pairwise peptide/protein ratios
+"""
+def pairwise_transform(df):
+
+    # Choose X peptides to keep for pairwise division
+    #kbest_data = SelectKBest(k=25).fit_transform(df, mouse_labels)
+    
+    index = df.index.values.tolist()
+
+    new_indices = []
+    new_data = {}
+
+    # For each sample:
+    # For each pair of peptides:
+        # Create new index value 'i/j'
+        # Calculate ratio
+        # Add ratio to corresponding data    
+    
+    for col in df.columns:
+        for i in index:
+            for j in index:
+                ratio = df.loc[i, col]/test_df.loc[j, col]
+                new_index = i + '/' + j
+                if new_index not in new_indices:
+                    new_indices.append(new_index)
+
+                data = new_data.get(col, list())
+                data.append(ratio)
+
+                new_data[col] = data
+
+    transformed_df = pd.DataFrame(new_data, columns=df.columns, index=new_indices)
+    return transformed_df
+    
 
 """
 Fits new data to training features so that it can be classified
