@@ -17,6 +17,7 @@ from sklearn.metrics import accuracy_score, confusion_matrix
 from sklearn.model_selection import cross_val_predict, cross_val_score, GridSearchCV
 from sklearn.naive_bayes import GaussianNB, MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.svm import LinearSVC, SVC
 
@@ -315,6 +316,29 @@ def gbc_grid_search(cv, n_jobs, scoring=None):
     return grid_search(cv, n_jobs, GradientBoostingClassifier(), gbc_grid, scoring=scoring)
 
 
+"""
+Args:
+    cv (int): Number of cross-validation folds
+    n_jobs(int): Number of jobs to run in parallel
+    
+Returns:
+    GridSearchCV: sklearn.model_selection.GridSearchCV instance for MLPClassifier variations; attributes include best_estimator_, best_score_, and best_params_
+"""
+def mlp_grid_search(cv, n_jobs, scoring=None):
+    
+    mlp_grid = {
+        'classify__hidden_layer_sizes': [(10,), (100,), (500,), (1000,)],
+        'classify__tol': [1e-2, 1e-3, 1e-4, 1e-5, 1e-6],
+        #'classify__epsilon': [1e-3, 1e-7, 1e-8, 1e-9, 1e-8],
+        'classify__max_iter': [300, 500],
+        'classify__solver': ['lbfgs', 'sgd', 'adam']
+    }
+    
+    return grid_search(cv, n_jobs, MLPClassifier(), mlp_grid, scoring=scoring)
+
+"""
+General grid_search function called by all specific grid searches
+"""
 def grid_search(cv, n_jobs, model, model_grid, scoring=None):
     pipe = Pipeline([
         ('reduce_dim', PCA()),
