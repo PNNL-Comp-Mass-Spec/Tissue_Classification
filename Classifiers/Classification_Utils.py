@@ -446,6 +446,26 @@ def get_labels(df, columns, organ_to_columns):
         
     return labels
 
+"""Transforms a dataframe to keep only the k rows most significant in terms of group-wise ANOVA-F value
+
+Args:
+    df (dataframe): rows are proteins/peptides, columns are samples
+    labels (list of strings): list of corresponding labels
+    k (int): number of features to keep
+    
+Returns:
+    transformed df with only the k best features kept
+"""
+def keep_k_best_features(df, labels, k):
+
+    select_k_best_classifier = SelectKBest(k=k)
+    kbest = select_k_best_classifier.fit_transform(df[:], labels)
+
+    fit_transformed_features = select_k_best_classifier.get_support()
+
+    kbest_df = pd.DataFrame(df, index = df.T.columns[fit_transformed_features])
+    return kbest_df
+
 """
 Args:
     df (dataframe): rows are peptide/proteins, columns are samples, data = abundance values
@@ -455,11 +475,8 @@ Returns:
 """
 def pairwise_transform(df):
 
-    # Choose X peptides to keep for pairwise division
-    #kbest_data = SelectKBest(k=25).fit_transform(df, mouse_labels)
-    
     index = df.index.values.tolist()
-
+    
     new_indices = []
     new_data = {}
 
@@ -472,7 +489,7 @@ def pairwise_transform(df):
     for col in df.columns:
         for i in index:
             for j in index:
-                ratio = df.loc[i, col]/test_df.loc[j, col]
+                ratio = df.loc[i, col]/df.loc[j, col]
                 new_index = i + '/' + j
                 if new_index not in new_indices:
                     new_indices.append(new_index)
