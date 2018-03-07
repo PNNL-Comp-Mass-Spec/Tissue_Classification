@@ -450,7 +450,7 @@ def get_labels(df, columns, organ_to_columns):
 
 Args:
     df (dataframe): rows are proteins/peptides, columns are samples
-    labels (list of strings): list of corresponding labels
+    labels (list of strings): list of corresponding labels for df columns
     k (int): number of features to keep
     
 Returns:
@@ -459,7 +459,7 @@ Returns:
 def keep_k_best_features(df, labels, k):
 
     select_k_best_classifier = SelectKBest(k=k)
-    kbest = select_k_best_classifier.fit_transform(df[:], labels)
+    kbest = select_k_best_classifier.fit_transform(df[:].T, labels)
 
     fit_transformed_features = select_k_best_classifier.get_support()
 
