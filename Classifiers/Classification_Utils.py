@@ -244,12 +244,14 @@ Returns:
 """
 def svc_grid_search(cv, n_jobs, scoring=None):
 
-    C_OPTIONS = [1, 10, 100, 1000]
+    C_OPTIONS = [.1, 1, 10, 100, 1000]
     KERNELS = ['linear', 'rbf', 'poly']
+    GAMMAS = [0.001, 0.01, 0.1, 1]
 
     svc_grid = {
             'classify__C': C_OPTIONS,
-            'classify__kernel': KERNELS
+            'classify__kernel': KERNELS,
+            'classify__gamma': GAMMAS
     }
 
     return grid_search(cv, n_jobs, SVC(probability=True), svc_grid, scoring=scoring)
