@@ -244,7 +244,7 @@ Returns:
 """
 def svc_grid_search(cv, n_jobs, scoring=None):
 
-    C_OPTIONS = [.1, 1, 10, 100, 1000]
+    C_OPTIONS = [.01, .1, 1, 10, 100, 1000]
     KERNELS = ['linear', 'rbf', 'poly']
     GAMMAS = [0.001, 0.01, 0.1, 1]
 
@@ -284,9 +284,12 @@ Returns:
 """
 def rf_grid_search(cv, n_jobs, scoring=None):
     
+    MAX_FEATURES = ['auto', 'sqrt', 'log2']
+    
     rf_grid = {
             'classify__n_estimators': N_ESTIMATORS,
-            'classify__min_samples_split': MIN_SAMPLES_SPLIT
+            'classify__min_samples_split': MIN_SAMPLES_SPLIT,
+            'max_features': MAX_FEATURES
     }
     
     return grid_search(cv, n_jobs, RandomForestClassifier(), rf_grid, scoring=scoring)
@@ -341,10 +344,6 @@ def grid_search(cv, n_jobs, model, model_grid, scoring=None):
     pipe = Pipeline([
         ('reduce_dim', PCA()),
         ('classify', model)])
-
-    N_ESTIMATORS = [25, 50, 100, 200]
-    MIN_SAMPLES_SPLIT = [2, 3, 4, 5, 10]
-    MAX_DEPTH = range(5,16,2)
     
     param_grid = [
         {
