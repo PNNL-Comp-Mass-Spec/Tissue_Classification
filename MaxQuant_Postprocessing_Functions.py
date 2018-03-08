@@ -160,15 +160,16 @@ def log2_normalize(df):
 #########################
 """
 Args:
-    groups (list of strings): list of organs or column names to be grouped together by color
+    groups (list of strings): list of tissue names or column names to be grouped together by color
     organ_columns (dict): keys are strings representing organs/groups, values are lists of associated column names
+    num_colors (int, optional): number of different colors to assign. Defaults to 6
 
 Returns: 
     dict: dictionary mapping column names to colors based on organ/group
 """
-def map_colors(groups, organ_columns):
+def map_colors(groups, organ_columns, num_colors=6):
     color_dict = {} # Column name : color
-    num_colors = 6
+    num_colors = num_colors
     colors = sns.color_palette("hls", num_colors)
     color = 0
 
