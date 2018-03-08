@@ -31,6 +31,8 @@ from sklearn.svm import LinearSVC, SVC
 ESTIMATORS = [RandomForestClassifier(), 
               ExtraTreesClassifier(), 
               LinearSVC(C=0.01, penalty="l1", dual=False)]
+MIN_SAMPLES_SPLIT = [2, 3, 4, 5, 10]
+N_ESTIMATORS = [25, 50, 100, 200]
 N_FEATURES_OPTIONS = [2, 4, 8]
 K_FEATURES_OPTIONS = [10, 100, 1000]
 PERCENTILE_OPTIONS = [5, 10, 25, 50, 75, 90, 100]
@@ -282,9 +284,6 @@ Returns:
 """
 def rf_grid_search(cv, n_jobs, scoring=None):
     
-    N_ESTIMATORS = [25, 50, 100, 200]
-    MIN_SAMPLES_SPLIT = [2, 3, 4, 5, 10]
-    
     rf_grid = {
             'classify__n_estimators': N_ESTIMATORS,
             'classify__min_samples_split': MIN_SAMPLES_SPLIT
@@ -303,8 +302,6 @@ Returns:
 """
 def gbc_grid_search(cv, n_jobs, scoring=None):
     
-    N_ESTIMATORS = [25, 50, 100, 200]
-    MIN_SAMPLES_SPLIT = [2, 3, 4, 5, 10]
     MAX_DEPTH = range(5,16,2)
     
     gbc_grid = {
