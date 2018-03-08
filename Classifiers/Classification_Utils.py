@@ -21,7 +21,6 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.svm import LinearSVC, SVC
 
-
 #########################
 #
 # Constants
@@ -36,7 +35,6 @@ N_ESTIMATORS = [25, 50, 100, 200]
 N_FEATURES_OPTIONS = [2, 4, 8]
 K_FEATURES_OPTIONS = [10, 100, 1000]
 PERCENTILE_OPTIONS = [5, 10, 25, 50, 75, 90, 100]
-
 
 #########################
 #
@@ -514,6 +512,27 @@ def fit_new_data(original_df, new_df):
 # Plotting
 #
 #########################
+
+""" Creates a mapping of each tissue to all corresponding columns in the dataframe. Assumes columns contain the names of the tissues (e.g. column names might look like 'Lung_01', 'Lung_02', 'Brain_01' etc.
+
+Args:
+    df (dataframe): columns represent samples, named with the tissue type
+    list_of_tissues (list of strings): all tissues represented in the dataframe
+    
+Returns:
+    dict {string: list of strings} where keys are tissues and values are corresponding column names
+"""
+def map_tissues_to_columns(df, list_of_tissues):
+    
+    tissues_to_columns = dict([(key, []) for key in list_of_tissues])
+
+    for column_name in df.columns.values.tolist():
+        for tissue in list_of_tissues:
+            if tissue in column_name:
+                tissues_to_columns[tissue].append(column_name)
+                continue
+                
+    return tissues_to_columns
 
 """
 From SKLearn ConfusionMatrix documentation:
