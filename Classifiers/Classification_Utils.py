@@ -182,8 +182,8 @@ Returns:
     Prints mean cross-validation score and 95% confidence interval
 """
 def gradient_boosting_crossval(data, labels, num_splits):
-    grc = GradientBoostingClassifier()
-    return fit_model(grc, data, labels, num_splits)
+    gbc = GradientBoostingClassifier()
+    return fit_model(gbc, data, labels, num_splits)
 
 
 """
