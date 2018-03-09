@@ -217,12 +217,19 @@ Returns:
 """
 
 def median_normalize(df):
-    quants = df.iloc[:,1:] # Split off iBAQ columns to process
-    median_of_medians = quants.median().median()
-    quants /= quants.median(axis = 0) # divide each value by sample median
-    quants *= median_of_medians # multiply each value by median of medians
+    
+    if type(df.index) == pd.core.indexes.base.Index:
+        median_of_medians = df.median().median()
+        df /= df.median(axis=0) # divide each value by sample median
+        df *= median_of_medians
+    else:
+        quants = df.iloc[:,1:] # Split off non-peptide/protein columns to process
 
-    df.iloc[:,1:] = quants # insert processed iBAQ values into original df
+        median_of_medians = quants.median().median()
+        quants /= quants.median(axis = 0) # divide each value by sample median
+        quants *= median_of_medians # multiply each value by median of medians
+
+        df.iloc[:,1:] = quants # insert processed quant values into original df
 
 
 #########################
