@@ -289,7 +289,7 @@ def rf_grid_search(cv, n_jobs, scoring=None):
     rf_grid = {
             'classify__n_estimators': N_ESTIMATORS,
             'classify__min_samples_split': MIN_SAMPLES_SPLIT,
-            'max_features': MAX_FEATURES
+            'classify__max_features': MAX_FEATURES
     }
     
     return grid_search(cv, n_jobs, RandomForestClassifier(), rf_grid, scoring=scoring)
