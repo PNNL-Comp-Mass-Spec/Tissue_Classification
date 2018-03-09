@@ -377,25 +377,27 @@ def grid_search(cv, n_jobs, model, model_grid, scoring=None):
 #
 #########################
 
-"""
+""" Reads in tab separated files containing a 'Peptide' column
+
 Args:
-    file_paths (list of strings): list of file paths to csvs 
+    file_dir (string): path to directory containing files
+    file_paths (list of strings): list of file names of csvs to read
     
 Returns:
     dataframe containing data from all csvs referenced by file_paths. Dataframe index is 'Peptide'; each column represents a single sample.
 """
-def combine_csvs(file_paths):
+def combine_csvs(file_dir, file_names):
     
     dfs = []
 
-    for file in file_paths:
-        df = pd.read_csv(file, sep='\t', lineterminator='\r')
+    for file in file_names:
+        df = pd.read_csv(file_dir + file, sep='\t', lineterminator='\r')
         dfs.append(df)
 
     combined_df = pd.DataFrame()
     for df in dfs:
         df.set_index('Peptide', inplace=True)
-        combined_df = combined_df.join(df)
+        combined_df = combined_df.join(df, how='outer')
         
     return combined_df
 
