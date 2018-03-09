@@ -336,7 +336,7 @@ def draw_pca_graph(column_names, pca_data, base_dir, color_dict, per_var, labels
     
     pca_df = pd.DataFrame(pca_data, index = column_names, columns = labels)
  
-    plt.title('PCA Graph')
+    plt.title('PCA Plot')
     plt.xlabel('PC1 - {0}%'.format(per_var[0]))
     plt.ylabel('PC2 - {0}%'.format(per_var[1]))
  
@@ -351,6 +351,16 @@ def draw_pca_graph(column_names, pca_data, base_dir, color_dict, per_var, labels
 
 """
 Draws a PCA graph with legend below
+
+Args:
+    column_names (list of strings):
+    pca_data (): PCA coordinates
+    base_dir (string): path to directory to place image
+    color_dict (dict)
+    per_var:
+    labels:
+    all_organs (list of strings): list of all tissue names
+    organs_to_columns (dict): mapping ot tissue/organ to all associated column names
 """
     
 def draw_pca_graph2(column_names, pca_data, base_dir, color_dict, per_var, labels, all_organs, organs_to_columns):
@@ -360,7 +370,7 @@ def draw_pca_graph2(column_names, pca_data, base_dir, color_dict, per_var, label
     fig = plt.figure(1)
     ax = fig.add_subplot(111)
  
-    plt.title('PCA Graph')
+    plt.title('PCA Plot')
     plt.xlabel('PC1 - {0}%'.format(per_var[0]))
     plt.ylabel('PC2 - {0}%'.format(per_var[1]))
  
