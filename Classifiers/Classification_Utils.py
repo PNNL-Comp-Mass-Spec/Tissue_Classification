@@ -428,14 +428,13 @@ def rename_columns(df, before, after):
 
 """
 Args: 
-    df (dataframe)
     columns (list of strings): list of all column names in df
     organ_to_columns (dict): mapping of each organ to its column names {str: list of str}
     
 Returns: 
     List of strings representing the labels for each dataframe column
 """
-def get_labels(df, columns, organ_to_columns):
+def get_labels(columns, organ_to_columns):
     labels = []
 
     for column in columns:
