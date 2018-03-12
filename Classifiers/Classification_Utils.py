@@ -115,7 +115,7 @@ Returns:
     Naive Bayes Multinomial classification model fitted on all inputted data
     Prints mean cross-validation score and 95% confidence interval
 """
-def bayes_gaussian_model_crossval(data, labels, num_splits):
+def bayes_multinomial_model_crossval(data, labels, num_splits):
     mnb = MultinomialNB()
     return fit_model(mnb, data, labels, num_splits)
 
@@ -129,7 +129,7 @@ Returns:
     Naive Bayes Gaussian classification model fitted on all inputted data
     Prints mean cross-validation score and 95% confidence interval
 """
-def bayes_multinomial_model_crossval(data, labels, num_splits):
+def bayes_gaussian_model_crossval(data, labels, num_splits):
     gnb = GaussianNB()
     return fit_model(gnb, data, labels, num_splits)
 
@@ -280,6 +280,24 @@ Args:
     n_jobs(int): Number of jobs to run in parallel
     
 Returns:
+    GridSearchCV: sklearn.model_selection.GridSearchCV instance for Multinomial Naive Bayes variations; attributes include best_estimator_, best_score_, and best_params_
+"""
+def mnb_grid_search(cv, n_jobs, scoring=None):
+
+    ALPHAS = [1, 0.1, 0.01, 0.001, 0.0001, 0.00001]
+ 
+    mnb_grid = {
+            'classify__alpha': ALPHAS
+    }
+
+    return grid_search(cv, n_jobs, MultinomialNB(), mnb_grid, scoring=scoring)
+
+"""
+Args:
+    cv (int): Number of cross-validation folds
+    n_jobs(int): Number of jobs to run in parallel
+    
+Returns:
     GridSearchCV: sklearn.model_selection.GridSearchCV instance for RandomForest variations; attributes include best_estimator_, best_score_, and best_params_
 """
 def rf_grid_search(cv, n_jobs, scoring=None):
@@ -350,10 +368,10 @@ def grid_search(cv, n_jobs, model, model_grid, scoring=None):
             'reduce_dim': [PCA(), NMF()],
             'reduce_dim__n_components': N_FEATURES_OPTIONS,
         },
-        {
-            'reduce_dim': [SelectKBest()],
-            'reduce_dim__k': K_FEATURES_OPTIONS,
-        },
+#        {
+#            'reduce_dim': [SelectKBest()],
+#            'reduce_dim__k': K_FEATURES_OPTIONS,
+#        },
         {
             'reduce_dim': [SelectPercentile()],
             'reduce_dim__percentile': PERCENTILE_OPTIONS,
