@@ -333,7 +333,7 @@ Args:
 Returns:
     produces a PCA plot and saves it as a pdf in the given base directory
 """
-def draw_pca_graph(column_names, pca_data, base_dir, color_dict, per_var, labels, title='PCA Plot'):
+def draw_pca_graph(column_names, pca_data, base_dir, color_dict, per_var, labels, title='PCA_Plot'):
     
     pca_df = pd.DataFrame(pca_data, index = column_names, columns = labels)
  
@@ -345,7 +345,7 @@ def draw_pca_graph(column_names, pca_data, base_dir, color_dict, per_var, labels
         plt.scatter(pca_df.PC1.loc[column], pca_df.PC2.loc[column], color = color_dict[column])
         plt.annotate(column, (pca_df.PC1.loc[column], pca_df.PC2.loc[column]), color = color_dict[column])
         
-    output_path = base_dir + 'PCA.pdf'
+    output_path = base_dir + title + '.pdf'
 
     plt.savefig(output_path, bbox_inches="tight")
     plt.clf()
@@ -365,7 +365,7 @@ Args:
     title (string, optional): plot title. Defaults to "PCA Plot"
 """
     
-def draw_pca_graph2(column_names, pca_data, base_dir, color_dict, per_var, labels, all_organs, organs_to_columns, title='PCA Plot'):
+def draw_pca_graph2(column_names, pca_data, base_dir, color_dict, per_var, labels, all_organs, organs_to_columns, title='PCA_Plot'):
     
     pca_df = pd.DataFrame(pca_data, index = column_names, columns = labels)
     
@@ -379,7 +379,7 @@ def draw_pca_graph2(column_names, pca_data, base_dir, color_dict, per_var, label
     for column in column_names:
         ax.scatter(pca_df.PC1.loc[column], pca_df.PC2.loc[column], color=color_dict[column])
         
-    output_path = base_dir + 'PCA.pdf'
+    output_path = base_dir + title + '.pdf'
     
     new_handles = []
     for organ in all_organs:
