@@ -328,15 +328,16 @@ Args:
     color_dict (dict)
     per_var:
     labels:
+    title (string, optional): plot title. Defaults to "PCA Plot"
     
 Returns:
     produces a PCA plot and saves it as a pdf in the given base directory
 """
-def draw_pca_graph(column_names, pca_data, base_dir, color_dict, per_var, labels):
+def draw_pca_graph(column_names, pca_data, base_dir, color_dict, per_var, labels, title='PCA Plot'):
     
     pca_df = pd.DataFrame(pca_data, index = column_names, columns = labels)
  
-    plt.title('PCA Plot')
+    plt.title(title)
     plt.xlabel('PC1 - {0}%'.format(per_var[0]))
     plt.ylabel('PC2 - {0}%'.format(per_var[1]))
  
@@ -361,16 +362,17 @@ Args:
     labels:
     all_organs (list of strings): list of all tissue names
     organs_to_columns (dict): mapping ot tissue/organ to all associated column names
+    title (string, optional): plot title. Defaults to "PCA Plot"
 """
     
-def draw_pca_graph2(column_names, pca_data, base_dir, color_dict, per_var, labels, all_organs, organs_to_columns):
+def draw_pca_graph2(column_names, pca_data, base_dir, color_dict, per_var, labels, all_organs, organs_to_columns, title='PCA Plot'):
     
     pca_df = pd.DataFrame(pca_data, index = column_names, columns = labels)
     
     fig = plt.figure(1)
     ax = fig.add_subplot(111)
  
-    plt.title('PCA Plot')
+    plt.title(title)
     plt.xlabel('PC1 - {0}%'.format(per_var[0]))
     plt.ylabel('PC2 - {0}%'.format(per_var[1]))
  
