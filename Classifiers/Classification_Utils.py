@@ -461,26 +461,6 @@ def get_labels(columns, organ_to_columns):
         
     return labels
 
-"""Transforms a dataframe to keep only the k rows most significant in terms of group-wise ANOVA-F value
-
-Args:
-    df (dataframe): rows are proteins/peptides, columns are samples
-    labels (list of strings): list of corresponding labels for df columns
-    k (int): number of features to keep
-    
-Returns:
-    transformed df with only the k best features kept
-"""
-def keep_k_best_features(df, labels, k):
-
-    select_k_best_classifier = SelectKBest(k=k)
-    kbest = select_k_best_classifier.fit_transform(df[:].T, labels)
-
-    fit_transformed_features = select_k_best_classifier.get_support()
-
-    kbest_df = pd.DataFrame(df, index = df.T.columns[fit_transformed_features])
-    return kbest_df
-
 """
 Args:
     df (dataframe): rows are peptide/proteins, columns are samples, data = abundance values
@@ -597,8 +577,8 @@ From SKLearn ConfusionMatrix documentation:
 http://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html#sphx-glr-auto-examples-model-selection-plot-confusion-matrix-py
 
 Args:
-    y_test (list of strings)
-    y_pred (list of strings)
+    y_test (list of strings): actual labels
+    y_pred (list of strings): predicted labels
     groups (list of strings): list of all unique labels
 """
 def show_confusion_matrices(y_test, y_pred, groups):
@@ -652,3 +632,112 @@ def n_most_abundant(labels_to_proteins, label, n):
     
     top_proteins = labels_to_proteins[label][:n] 
     return top_proteins
+
+
+#########################
+#
+# Top distinguishing features
+#
+#########################
+
+"""Transforms a dataframe to keep only the k rows most significant in terms of group-wise ANOVA-F value
+
+Args:
+    df (dataframe): rows are proteins/peptides, columns are samples
+    labels (list of strings): list of corresponding labels for df columns
+    k (int): number of features to keep
+    
+Returns:
+    transformed df with only the k best features kept
+"""
+def keep_k_best_features(df, labels, k):
+
+    select_k_best_classifier = SelectKBest(k=k)
+    kbest = select_k_best_classifier.fit_transform(df[:].T, labels)
+
+    fit_transformed_features = select_k_best_classifier.get_support()
+
+    kbest_df = pd.DataFrame(df, index = df.T.columns[fit_transformed_features])
+    return kbest_df
+
+"""Works on Decision Tree, Random Forest, Gradient Boosting
+
+Args:
+    df (dataframe)
+    clf (classifier): classifier with feature_importances_ attribute
+    n (int): number of features to print
+    
+Returns:
+    Prints out top n features (in descending order of importance) and their corresponding coefficient values
+"""
+def print_top_n_features(df, clf, n):
+    
+    importances, indices = top_features(df, clf, n)
+    
+    print("Feature ranking:")
+
+    features = df.index.values.tolist()
+    for n in range(n):
+        idx = indices[n]
+        feature = features[idx]
+        print("%s (%f)" % (feature, importances[idx]), end = "")
+    
+"""
+Args:
+    df (dataframe)
+    clf (classifier): classifier with feature_importances_ attribute
+    n (int): number of features to retrieve
+    
+Returns:
+    importances (list of ints): importance values, sorted in descending order
+    indices (list of ints): corresponding indices
+    
+"""
+def top_features(df, clf, n):
+    importances = clf.feature_importances_
+    indices = np.argsort(importances)[::-1] # Read backwards to get highest values first
+    return importances, indices
+
+"""Works on any algorithm with coef_ feature (SVC, Logistic Regression, Naive Bayes)
+
+Args:
+    df (dataframe)
+    clf (classifier): linear classifier containing coef_ attribute
+    n (int): number of features per class to print
+    class_labels (list of strings): list of all unique class names (e.g. ['Brain', 'Heart', 'Liver'])
+    
+Returns:
+    Prints out top n features (in descending order of importance) and their corresponding coefficient values for each class
+"""
+def print_top_n_features_coef(df, clf, n, class_labels):
+    
+    class_to_indices = top_features_per_class(df, clf, n, class_labels) # {'Lung': [list of indices]}
+    
+    print('Feature ranking:')
+    features = df.index.values.tolist()
+    
+    for label, indices in class_to_indices.items():
+        top_n_indices = indices[:n]
+        print('%s: %s' % (label, " ".join(features[i] for i in top_n_indices)))
+        print('\n')
+
+"""     
+Args:
+    df (dataframe)
+    clf (classifier): classifier with feature_importances_ attribute
+    n (int): number of features to retrieve
+    class_labels (list of strings): list of all unique class names (e.g. ['Brain', 'Heart', 'Liver'])
+    
+Returns:
+    dict ({string: list of ints}): keys are class labels, values are lists of indices representing corresponding to features with the highest importances (sorted descending)
+"""
+def top_features_per_class(df, clf, n, class_labels):
+    
+    coefs = clf.coef_
+    class_to_importances = dict.fromkeys(class_labels) # {'Lung': [3, 10, 5...]}
+    
+    for i, class_label in enumerate(class_labels):
+        sorted_indices = np.argsort(coefs[i])
+        class_to_importances[class_label] = sorted_indices
+
+    return class_to_importances
