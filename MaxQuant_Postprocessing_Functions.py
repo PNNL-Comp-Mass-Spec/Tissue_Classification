@@ -292,12 +292,13 @@ def do_pca(df, feature='protein', scale=True):
 Args:
     pca (PCA): first object in tuple returned from do_pca
     base_dir (string): path to directory to place image
+    title (string, optional): plot title. Defaults to "Scree_Plot"
     
 Returns:
     produces a scree plot and saves it as a pdf in the given base directory
     per_var, labels (tuple)
 """
-def make_scree_plot(pca, base_dir):
+def make_scree_plot(pca, base_dir, title='Scree_Plot'):
 
     per_var = np.round(pca.explained_variance_ratio_* 100, decimals = 1)
     labels = ['PC' + str(x) for x in range(1, len(per_var)+1)]
@@ -305,9 +306,9 @@ def make_scree_plot(pca, base_dir):
     plt.bar(x = range(1, len(per_var) + 1), height = per_var, tick_label = labels)
     plt.ylabel('Percentage of Explained Variance')
     plt.xlabel('Principal Component')
-    plt.title('Scree Plot')
+    plt.title(title)
     plt.xticks(rotation='vertical')
-    output_path = base_dir + 'Scree.pdf'
+    output_path = base_dir + title + '.pdf'
 
     plt.savefig(output_path, bbox_inches="tight")
     plt.clf()
