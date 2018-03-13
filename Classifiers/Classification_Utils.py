@@ -504,23 +504,16 @@ Returns:
 """
 def fit_new_data(original_df, new_df):
 
-    #fitted_data = original_df.drop(original_df.columns[:], axis=1).join(new_df)
-    fitted_data = original_df.join(new_df)
+    fitted_data = original_df.drop(original_df.columns[:], axis=1).join(new_df)
     
     fitted_data.iloc[:,:] = np.log2(fitted_data.iloc[:,:])
-    
     fitted_data.replace([np.inf, -np.inf], np.nan, inplace=True)
-    #fitted_data = fitted_data.fillna(impute_val)
+    
+    fitted_data = fitted_data.fillna(fitted_data.min().min()/2)
     
     median_of_medians = fitted_data.median().median()
     fitted_data /= fitted_data.median(axis=0) # divide each value by sample median
     fitted_data *= median_of_medians
-    
-    print("hallo!")
-    fitted_data = fitted_data.fillna(fitted_data.min().min()/2)
-    
-    #fitted_data = fitted_data.drop(original_df.columns[:], axis=1)
-    fitted_data = fitted_data.drop(original_df.columns.values.tolist(), axis=1)
     
     return fitted_data.T
 
