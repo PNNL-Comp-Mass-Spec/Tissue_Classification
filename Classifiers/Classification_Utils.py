@@ -52,15 +52,17 @@ Args:
     data (dataframe): contains all data that will be used to fit the model
     labels (list of strings): corresponding labels for each row of data
     num_splits (int): number of train-test splits to test
+    scoring (string): scoring method
+        http://scikit-learn.org/stable/modules/model_evaluation.html#scoring-parameter
     
 Returns:
     The given model fitted on all inputted data
     Prints mean cross-validation score and 95% confidence interval
 """
-def fit_model(model, data, labels, num_splits):
-    scores = cross_val_score(model, data, labels, cv=num_splits)
+def fit_model(model, data, labels, num_splits, scoring):
+    scores = cross_val_score(model, data, labels, cv=num_splits, scoring=scoring)
     print('Scores:',scores)
-    print('Accuracy: %0.2f (+/- %0.2f)' % (scores.mean(), scores.std() * 2))
+    print('%s: %0.2f (+/- %0.2f)' % (scoring, scores.mean(), scores.std() * 2))
     return model.fit(data, labels)
 
 """
@@ -68,28 +70,30 @@ Args:
     data (dataframe): contains all data that will be used to fit the model
     labels (list of strings): corresponding labels for each row of data
     num_splits (int): number of train-test splits to test
+    scoring (string, optional): scoring method. Defaults to accuracy score
 
 Returns:
     K Nearest Neighbors classification model fitted on all inputted data
     Prints mean cross-validation score and 95% confidence interval
 """
-def knn_model_crossval(data, labels, num_splits):
+def knn_model_crossval(data, labels, num_splits, scoring='accuracy'):
     knn = KNeighborsClassifier()
-    return fit_model(knn, data, labels, num_splits)
+    return fit_model(knn, data, labels, num_splits, scoring)
 
 """
 Args:
     data (dataframe): contains all data that will be used to fit the model
     labels (list of strings): corresponding labels for each row of data
     num_splits (int): number of train-test splits to test
+    scoring (string, optional): scoring method. Defaults to accuracy score
 
 Returns:
     Decision Tree classification model fitted on all inputted data
     Prints mean cross-validation score and 95% confidence interval
 """
-def decisiontree_model_crossval(data, labels, num_splits):
+def decisiontree_model_crossval(data, labels, num_splits, scoring='accuracy'):
     dt = tree.DecisionTreeClassifier()
-    return fit_model(dt, data, labels, num_splits)
+    return fit_model(dt, data, labels, num_splits, scoring)
 
 
 """
@@ -97,56 +101,60 @@ Args:
     data (dataframe): contains all data that will be used to fit the model
     labels (list of strings): corresponding labels for each row of data
     num_splits (int): number of train-test splits to test
+    scoring (string, optional): scoring method. Defaults to accuracy score
 
 Returns:
     Random forest classification model fitted on all inputted data
     Prints mean cross-validation score and 95% confidence interval
 """
-def randomforest_model_crossval(data, labels, num_splits):
+def randomforest_model_crossval(data, labels, num_splits, scoring='accuracy'):
     rf = RandomForestClassifier(n_estimators=10)
-    return fit_model(rf, data, labels, num_splits)
+    return fit_model(rf, data, labels, num_splits, scoring)
 
 """
 Args:
     data (dataframe): contains all data that will be used to fit the model
     labels (list of strings): corresponding labels for each row of data
     num_splits (int): number of train-test splits to test
+    scoring (string, optional): scoring method. Defaults to accuracy score
 
 Returns:
     Naive Bayes Multinomial classification model fitted on all inputted data
     Prints mean cross-validation score and 95% confidence interval
 """
-def bayes_multinomial_model_crossval(data, labels, num_splits):
+def bayes_multinomial_model_crossval(data, labels, num_splits, scoring='accuracy'):
     mnb = MultinomialNB()
-    return fit_model(mnb, data, labels, num_splits)
+    return fit_model(mnb, data, labels, num_splits, scoring)
 
 """
 Args:
     data (dataframe): contains all data that will be used to fit the model
     labels (list of strings): corresponding labels for each row of data
     num_splits (int): number of train-test splits to test
+    scoring (string, optional): scoring method. Defaults to accuracy score
 
 Returns:
     Naive Bayes Gaussian classification model fitted on all inputted data
     Prints mean cross-validation score and 95% confidence interval
 """
-def bayes_gaussian_model_crossval(data, labels, num_splits):
+def bayes_gaussian_model_crossval(data, labels, num_splits, scoring='accuracy'):
     gnb = GaussianNB()
-    return fit_model(gnb, data, labels, num_splits)
+    return fit_model(gnb, data, labels, num_splits, scoring)
 
 """
 Args:
     data (dataframe): contains all data that will be used to fit the model
     labels (list of strings): corresponding labels for each row of data
     num_splits (int): number of train-test splits to test
+    scoring (string, optional): scoring method. Defaults to accuracy score
 
 Returns:
     Logistic Regression classification model fitted on all inputted data
     Prints mean cross-validation score and 95% confidence interval
 """
-def logistic_regression_model_crossval(data, labels, num_splits):
+def logistic_regression_model_crossval(data, labels, num_splits, scoring='accuracy'):
     lr = LogisticRegression()
-    return fit_model(lr, data, labels, num_splits)
+    return fit_model(lr, data, labels, num_splits, scoring)
 
 
 """
@@ -154,12 +162,13 @@ Args:
     data (dataframe): contains all data that will be used to fit the model
     labels (list of strings): corresponding labels for each row of data
     num_splits (int): number of train-test splits to test
+    scoring (string, optional): scoring method. Defaults to accuracy score
 
 Returns:
     List of SVC classification models fitted on all inputted data
     Prints mean cross-validation scores and 95% confidence intervals
 """
-def SVC_models_crossval(data, labels, num_splits):
+def SVC_models_crossval(data, labels, num_splits, scoring='accuracy'):
     C = 1.0  # SVM regularization parameter
     models = (SVC(kernel='linear', C=C, probability=True),
               LinearSVC(C=C),
@@ -167,7 +176,7 @@ def SVC_models_crossval(data, labels, num_splits):
               SVC(kernel='poly', degree=3, C=C, probability=True))
 
     # Fit all the models
-    models = (fit_model(clf, data, labels, num_splits) for clf in models)
+    models = (fit_model(clf, data, labels, num_splits, scoring) for clf in models)
     model_list = list(models)
 
     return model_list
@@ -177,14 +186,15 @@ Args:
     data (dataframe): contains all data that will be used to fit the model
     labels (list of strings): corresponding labels for each row of data
     num_splits (int): number of train-test splits to test
+    scoring (string, optional): scoring method. Defaults to accuracy score
 
 Returns:
     Gradient Boosting Classifier model fitted on all inputted data
     Prints mean cross-validation score and 95% confidence interval
 """
-def gradient_boosting_crossval(data, labels, num_splits):
+def gradient_boosting_crossval(data, labels, num_splits, scoring='accuracy'):
     gbc = GradientBoostingClassifier()
-    return fit_model(gbc, data, labels, num_splits)
+    return fit_model(gbc, data, labels, num_splits, scoring)
 
 
 """
