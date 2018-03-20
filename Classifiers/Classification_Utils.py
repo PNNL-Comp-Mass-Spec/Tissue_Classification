@@ -33,7 +33,7 @@ ESTIMATORS = [RandomForestClassifier(),
               LinearSVC(C=0.01, penalty="l1", dual=False)]
 MIN_SAMPLES_SPLIT = [2, 3, 4, 5, 10]
 N_ESTIMATORS = [25, 50, 100, 200]
-N_FEATURES_OPTIONS = [2, 4, 8]
+N_FEATURES_OPTIONS = [2, 4, 6, 8]
 K_FEATURES_OPTIONS = [10, 100, 1000]
 PERCENTILE_OPTIONS = [5, 10, 25, 50, 75, 90, 100]
 
@@ -261,8 +261,8 @@ def svc_grid_search(cv, n_jobs, scoring=None):
 
     svc_grid = {
             'classify__C': C_OPTIONS,
-            'classify__kernel': KERNELS,
-            'classify__gamma': GAMMAS
+            'classify__kernel': 'linear',
+            #'classify__gamma': GAMMAS
     }
 
     return grid_search(cv, n_jobs, SVC(probability=True), svc_grid, scoring=scoring)
@@ -376,7 +376,7 @@ def grid_search(cv, n_jobs, model, model_grid, scoring=None):
     
     param_grid = [
         {
-            'reduce_dim': [PCA(), NMF()],
+            'reduce_dim': [PCA()], # NMF()
             'reduce_dim__n_components': N_FEATURES_OPTIONS,
         },
 #        {
@@ -387,10 +387,10 @@ def grid_search(cv, n_jobs, model, model_grid, scoring=None):
             'reduce_dim': [SelectPercentile()],
             'reduce_dim__percentile': PERCENTILE_OPTIONS,
         },
-        {
-            'reduce_dim': [SelectFromModel(RandomForestClassifier())],
-            'reduce_dim__estimator': [*ESTIMATORS],
-        },
+#        {
+#            'reduce_dim': [SelectFromModel(RandomForestClassifier())],
+#            'reduce_dim__estimator': [*ESTIMATORS],
+#        },
     ]
     
     for feature_grid in param_grid:
@@ -515,21 +515,20 @@ Returns:
 """
 def fit_new_data(original_df, new_df):
 
-    #fitted_data = original_df.join(new_df)
-    fitted_data = original_df.drop(original_df.columns[:], axis=1).join(new_df)
+    fitted_data = original_df.join(new_df)
+    #fitted_data = original_df.drop(original_df.columns[:], axis=1).join(new_df)
     
     fitted_data.iloc[:,:] = np.log2(fitted_data.iloc[:,:])
     fitted_data.replace([np.inf, -np.inf], np.nan, inplace=True)
     
     fitted_data = fitted_data.fillna(fitted_data.min().min()/2)
     
-    #median_of_medians = fitted_data.median().median()
-    #fitted_data /= fitted_data.median(axis=0) # divide each value by sample median
-    #fitted_data *= median_of_medians
+    median_of_medians = fitted_data.median().median()
+    fitted_data /= fitted_data.median(axis=0) # divide each value by sample median
+    fitted_data *= median_of_medians
+    #fitted_data.iloc[:,:] = RobustScaler().fit_transform(fitted_data)
     
-    fitted_data.iloc[:,:] = RobustScaler().fit_transform(fitted_data)
-    
-    # fitted_data.drop(original_df.columns, inplace=true)
+    fitted_data.drop(original_df.columns, axis=1, inplace=True)
     
     return fitted_data.T
 
