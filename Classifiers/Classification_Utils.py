@@ -108,7 +108,7 @@ Returns:
     Prints mean cross-validation score and 95% confidence interval
 """
 def randomforest_model_crossval(data, labels, num_splits, scoring='accuracy'):
-    rf = RandomForestClassifier(n_estimators=10)
+    rf = RandomForestClassifier(n_estimators=10, random_state=0)
     return fit_model(rf, data, labels, num_splits, scoring)
 
 """
@@ -509,11 +509,12 @@ Fits new data to training features so that it can be classified
 Args:
     original_df (dataframe): data used to train classification model
     new_df (dataframe): new data to be classified
+    features_to_keep(list of strings, optional): list of selected features kept in training data
 
 Returns:
     dataframe: new_df joined to the features of the training data. This dataframe can now be classified by a model trained with original_df
 """
-def fit_new_data(original_df, new_df):
+def fit_new_data(original_df, new_df, features_to_keep=None):
 
     fitted_data = original_df.join(new_df)
     #fitted_data = original_df.drop(original_df.columns[:], axis=1).join(new_df)
@@ -530,7 +531,12 @@ def fit_new_data(original_df, new_df):
     
     fitted_data.drop(original_df.columns, axis=1, inplace=True)
     
-    return fitted_data.T
+    fitted_data = fitted_data.T
+    
+    if(features_to_keep is not None):
+        fitted_data = fitted_data[features_to_keep]
+    
+    return fitted_data
 
 
 #########################
