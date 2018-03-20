@@ -92,7 +92,7 @@ Returns:
     Prints mean cross-validation score and 95% confidence interval
 """
 def decisiontree_model_crossval(data, labels, num_splits, scoring='accuracy'):
-    dt = tree.DecisionTreeClassifier()
+    dt = tree.DecisionTreeClassifier(random_state=0)
     return fit_model(dt, data, labels, num_splits, scoring)
 
 
@@ -684,6 +684,26 @@ def keep_k_best_features(df, labels, k):
     kbest = select_k_best_classifier.fit_transform(df[:].T, labels)
 
     fit_transformed_features = select_k_best_classifier.get_support()
+
+    kbest_df = pd.DataFrame(df, index = df.T.columns[fit_transformed_features])
+    return kbest_df
+
+"""Transforms a dataframe to keep only the top k percentile rows most significant in terms of group-wise ANOVA-F value
+
+Args:
+    df (dataframe): rows are proteins/peptides, columns are samples
+    labels (list of strings): list of corresponding labels for df columns
+    k (int): percentile of features to keep
+    
+Returns:
+    transformed df with only the k percentile best features kept
+"""
+def keep_percentile_features(df, labels, k):
+
+    select_k_percentile_classifier = SelectPercentile(percentile=k)
+    kbest = select_k_percentile_classifier.fit_transform(df[:].T, labels)
+
+    fit_transformed_features = select_k_percentile_classifier.get_support()
 
     kbest_df = pd.DataFrame(df, index = df.T.columns[fit_transformed_features])
     return kbest_df
