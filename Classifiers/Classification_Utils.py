@@ -261,7 +261,7 @@ def svc_grid_search(cv, n_jobs, scoring=None):
 
     svc_grid = {
             'classify__C': C_OPTIONS,
-            'classify__kernel': 'linear',
+            'classify__kernel': ['linear'],
             #'classify__gamma': GAMMAS
     }
 
