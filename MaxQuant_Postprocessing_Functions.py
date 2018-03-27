@@ -3,6 +3,7 @@
 import itertools
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 from numpy import logical_or
 import numpy as np
 import pandas as pd
@@ -391,6 +392,55 @@ def draw_pca_graph2(column_names, pca_data, base_dir, color_dict, per_var, label
     
     lgd = ax.legend(handles=new_handles, loc=2, bbox_to_anchor=(1, 1), ncol=1)
     fig.show()
+    fig.savefig(output_path, bbox_inches="tight", bbox_extra_artists=(lgd,))
+    fig.clf()
+    
+    
+"""
+Draws a three-dimensional PCA graph with legend below
+
+Args:
+    column_names (list of strings):
+    pca_data (): PCA coordinates
+    base_dir (string): path to directory to place image
+    color_dict (dict)
+    per_var:
+    labels:
+    all_organs (list of strings): list of all tissue names
+    organs_to_columns (dict): mapping ot tissue/organ to all associated column names
+    title (string, optional): plot title. Defaults to "PCA Plot"
+"""
+    
+def draw_3d_pca(column_names, pca_data, base_dir, color_dict, per_var, labels, all_organs, organs_to_columns, title='PCA Plot'):
+    
+    my_dpi=96
+    plt.figure(figsize=(480/my_dpi, 480/my_dpi), dpi=my_dpi)
+    
+    pca_df = pd.DataFrame(pca_data, index = column_names, columns = labels)
+
+    # Plot initialisation
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    
+    for column in column_names:
+        ax.scatter(pca_df.PC1.loc[column], pca_df.PC2.loc[column], pca_df.PC3.loc[column], color=color_dict[column])
+    #ax.scatter(result['PCA0'], result['PCA1'], result['PCA2'], c=my_color, cmap="Set2_r", s=60)
+
+    # label the axes
+    ax.set_xlabel("PC1")
+    ax.set_ylabel("PC2")
+    ax.set_zlabel("PC3")
+    ax.set_title(title)
+    
+    new_handles = []
+    for organ in all_organs:
+        col = organs_to_columns[organ][0]
+        color = color_dict[col]
+        patch = mpatches.Patch(color=color, label=organ)
+        new_handles.append(patch)
+
+    lgd = ax.legend(handles=new_handles, loc=2, bbox_to_anchor=(1, 1), ncol=1)
+    output_path = base_dir + title + '.pdf'
     fig.savefig(output_path, bbox_inches="tight", bbox_extra_artists=(lgd,))
     fig.clf()
 
