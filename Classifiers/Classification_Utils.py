@@ -14,7 +14,7 @@ from sklearn.ensemble import ExtraTreesClassifier, GradientBoostingClassifier, R
 from sklearn.feature_selection import RFECV, SelectFromModel, SelectKBest, SelectPercentile
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, confusion_matrix
-from sklearn.model_selection import cross_val_predict, cross_val_score, GridSearchCV, ShuffleSplit
+from sklearn.model_selection import cross_val_predict, cross_val_score, GridSearchCV, StratifiedShuffleSplit
 from sklearn.naive_bayes import GaussianNB, MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
@@ -60,7 +60,7 @@ Returns:
     Prints mean cross-validation score and 95% confidence interval
 """
 def fit_model(model, data, labels, num_splits, scoring):
-    cv = ShuffleSplit(n_splits=num_splits, test_size=0.3, random_state=0)
+    cv = StratifiedShuffleSplit(n_splits=num_splits, test_size=0.3, random_state=0)
     scores = cross_val_score(model, data, labels, cv=cv, scoring=scoring)
     print('Scores:',scores)
     print('%s: %0.2f (+/- %0.2f)' % (scoring, scores.mean(), scores.std() * 2))
