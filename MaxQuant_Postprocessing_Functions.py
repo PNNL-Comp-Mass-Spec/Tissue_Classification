@@ -424,7 +424,6 @@ def draw_3d_pca(column_names, pca_data, base_dir, color_dict, per_var, labels, a
     
     for column in column_names:
         ax.scatter(pca_df.PC1.loc[column], pca_df.PC2.loc[column], pca_df.PC3.loc[column], color=color_dict[column])
-    #ax.scatter(result['PCA0'], result['PCA1'], result['PCA2'], c=my_color, cmap="Set2_r", s=60)
 
     # label the axes
     ax.set_xlabel("PC1")
@@ -439,7 +438,7 @@ def draw_3d_pca(column_names, pca_data, base_dir, color_dict, per_var, labels, a
         patch = mpatches.Patch(color=color, label=organ)
         new_handles.append(patch)
 
-    lgd = ax.legend(handles=new_handles, loc=2, bbox_to_anchor=(1, 1), ncol=1)
+    lgd = ax.legend(handles=new_handles, loc=2, bbox_to_anchor=(1.05, 1), ncol=1)
     output_path = base_dir + title + '.pdf'
     fig.savefig(output_path, bbox_inches="tight", bbox_extra_artists=(lgd,))
     fig.clf()
