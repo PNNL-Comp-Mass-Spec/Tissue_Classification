@@ -60,7 +60,7 @@ Returns:
     Prints mean cross-validation score and 95% confidence interval
 """
 def fit_model(model, data, labels, num_splits, scoring):
-    cv = ShuffleSplit(n_splits=num_splits, test_size=0.5, random_state=0)
+    cv = ShuffleSplit(n_splits=num_splits, test_size=0.3, random_state=0)
     scores = cross_val_score(model, data, labels, cv=cv, scoring=scoring)
     print('Scores:',scores)
     print('%s: %0.2f (+/- %0.2f)' % (scoring, scores.mean(), scores.std() * 2))
