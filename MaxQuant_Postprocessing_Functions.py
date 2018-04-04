@@ -414,18 +414,16 @@ Args:
 def draw_3d_pca(column_names, pca_data, base_dir, color_dict, per_var, labels, all_organs, organs_to_columns, title='PCA Plot'):
     
     my_dpi=96
-    plt.figure(figsize=(480/my_dpi, 480/my_dpi), dpi=my_dpi)
+    plt.figure()
     
     pca_df = pd.DataFrame(pca_data, index = column_names, columns = labels)
 
-    # Plot initialisation
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
     
     for column in column_names:
         ax.scatter(pca_df.PC1.loc[column], pca_df.PC2.loc[column], pca_df.PC3.loc[column], color=color_dict[column])
 
-    # label the axes
     ax.set_xlabel("PC1")
     ax.set_ylabel("PC2")
     ax.set_zlabel("PC3")
