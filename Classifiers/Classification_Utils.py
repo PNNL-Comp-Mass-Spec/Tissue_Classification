@@ -62,7 +62,7 @@ Returns:
 def fit_model(model, data, labels, num_splits, scoring):
     cv = StratifiedShuffleSplit(n_splits=num_splits, test_size=0.3, random_state=0)
     scores = cross_val_score(model, data, labels, cv=cv, scoring=scoring)
-    print('Scores:',scores)
+    #print('Scores:',scores)
     print('%s: %0.2f (+/- %0.2f)' % (scoring, scores.mean(), scores.std() * 2))
     return model.fit(data, labels)
 
@@ -608,15 +608,16 @@ def plot_confusion_matrix(cm, classes,
     plt.xlabel('Predicted label')
 
 """
-From SKLearn ConfusionMatrix documentation:
+Modified from SKLearn ConfusionMatrix documentation:
 http://scikit-learn.org/stable/auto_examples/model_selection/plot_confusion_matrix.html#sphx-glr-auto-examples-model-selection-plot-confusion-matrix-py
 
 Args:
     y_test (list of strings): actual labels
     y_pred (list of strings): predicted labels
     groups (list of strings): list of all unique labels
+    title(string, optional): chart title. Defaults to 'Confusion Matrix'
 """
-def show_confusion_matrices(y_test, y_pred, groups):
+def show_confusion_matrices(y_test, y_pred, groups, title='Confusion Matrix'):
     # Compute confusion matrix
     cnf_matrix = confusion_matrix(y_test, y_pred)
     np.set_printoptions(precision=2)
@@ -624,12 +625,12 @@ def show_confusion_matrices(y_test, y_pred, groups):
     # Plot non-normalized confusion matrix
     plt.figure()
     plot_confusion_matrix(cnf_matrix, classes=groups,
-                          title='Confusion matrix, without normalization')
+                          title= title + ', Without Normalization')
 
     # Plot normalized confusion matrix
     plt.figure()
     plot_confusion_matrix(cnf_matrix, classes=groups, normalize=True,
-                          title='Normalized confusion matrix')
+                          title= 'Normalized ' + title)
 
     plt.show()
     
