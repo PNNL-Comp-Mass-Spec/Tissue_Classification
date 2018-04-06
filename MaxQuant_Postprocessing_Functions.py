@@ -164,14 +164,15 @@ Args:
     groups (list of strings): list of tissue names or column names to be grouped together by color
     organ_columns (dict): keys are strings representing organs/groups, values are lists of associated column names
     num_colors (int, optional): number of different colors to assign. Defaults to 6
+    palette (string, optional): seaborn color palette name, defaults to 'hls'
 
 Returns: 
     dict: dictionary mapping column names to colors based on organ/group
 """
-def map_colors(groups, organ_columns, num_colors=6):
+def map_colors(groups, organ_columns, num_colors=6, palette='hls'):
     color_dict = {} # Column name : color
     num_colors = num_colors
-    colors = sns.color_palette("hls", num_colors)
+    colors = sns.color_palette(palette, num_colors)
     color = 0
 
     for organ in groups:
