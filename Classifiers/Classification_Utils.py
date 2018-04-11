@@ -31,11 +31,12 @@ from sklearn.svm import LinearSVC, SVC
 ESTIMATORS = [RandomForestClassifier(), 
               ExtraTreesClassifier(), 
               LinearSVC(C=0.01, penalty="l1", dual=False)]
+C_OPTIONS = [.01, .1, 1, 10, 100, 1000]
 MIN_SAMPLES_SPLIT = [2, 3, 4, 5, 10]
 N_ESTIMATORS = [25, 50, 100, 200]
 N_FEATURES_OPTIONS = [2, 4, 6, 8]
 K_FEATURES_OPTIONS = [10, 100, 1000]
-PERCENTILE_OPTIONS = [5, 10, 25, 50, 75, 90, 100]
+PERCENTILE_OPTIONS = [10, 25, 50, 75, 90, 100]
 
 #########################
 #
@@ -256,7 +257,6 @@ Returns:
 """
 def svc_grid_search(cv, n_jobs, scoring=None):
 
-    C_OPTIONS = [.01, .1, 1, 10, 100, 1000]
     KERNELS = ['linear', 'rbf', 'poly']
     GAMMAS = [0.001, 0.01, 0.1, 1]
 
@@ -285,6 +285,25 @@ def knn_grid_search(cv, n_jobs, scoring=None):
     }
 
     return grid_search(cv, n_jobs, KNeighborsClassifier(), knn_grid, scoring=scoring)
+
+"""
+Args:
+    cv (int): Number of cross-validation folds
+    n_jobs(int): Number of jobs to run in parallel
+    
+Returns:
+    GridSearchCV: sklearn.model_selection.GridSearchCV instance for LR variations; attributes include best_estimator_, best_score_, and best_params_
+"""
+def lr_grid_search(cv, n_jobs, scoring=None):
+
+    SOLVERS = ['sag', 'saga']
+ 
+    lr_grid = {
+            'classify__solver': SOLVERS,
+            'classify__C': C_OPTIONS
+    }
+
+    return grid_search(cv, n_jobs, LogisticRegression(), lr_grid, scoring=scoring)
 
 """
 Args:
