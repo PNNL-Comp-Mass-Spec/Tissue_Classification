@@ -4,4 +4,3 @@ In order of processing:
 3) imputed_df
 4) median_normalized_df
 
-The first 169 columns represent the training set; the last 85 columns represent the test set
