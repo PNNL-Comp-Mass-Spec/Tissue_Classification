@@ -36,7 +36,7 @@ MIN_SAMPLES_SPLIT = [2, 3, 4, 5, 10]
 N_ESTIMATORS = [25, 50, 100, 200]
 N_FEATURES_OPTIONS = [2, 4, 6, 8]
 K_FEATURES_OPTIONS = [10, 100, 1000]
-PERCENTILE_OPTIONS = [10, 25, 50, 75, 90, 100]
+PERCENTILE_OPTIONS = [25, 50, 75, 100]
 
 #########################
 #
@@ -396,7 +396,7 @@ def grid_search(cv, n_jobs, model, model_grid, scoring=None):
     
     param_grid = [
         {
-            'reduce_dim': [PCA()], # NMF()
+            'reduce_dim': [PCA()], 
             'reduce_dim__n_components': N_FEATURES_OPTIONS,
         },
 #        {
