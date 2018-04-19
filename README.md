@@ -1,10 +1,11 @@
 # Proteomics_Data_Processing
 
-## Classifiers
-* Contains notebooks for classification testing
+## Classification.ipynb
+* Code to load and pre-process data
+* Train and test various classifiers
 
-## Testing_Notebooks
-* Jupyter notebooks used for data processing testing and exploration
+## Classification_Utils.py
+* Contains utility functions to perform basic classification processes, including cross-validation and grid searches
 
 ## MaxQuant_Postprocessing_Functions.py
 * Contains functions for MaxQuant output postprocessing and graph generation
