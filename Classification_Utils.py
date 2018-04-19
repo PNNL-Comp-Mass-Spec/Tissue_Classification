@@ -354,7 +354,7 @@ Returns:
 """
 def gbc_grid_search(cv, n_jobs, scoring=None):
     
-    MAX_DEPTH = range(5,16,2)
+    MAX_DEPTH = range(5,16,3)
     
     gbc_grid = {
             'classify__n_estimators': N_ESTIMATORS,
