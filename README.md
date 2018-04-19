@@ -1,5 +1,8 @@
 # Proteomics_Data_Processing
 
+## TODO:
+* Clean up utility functions in .py files, removing things not used for classification and moving relevant functions from MaxQuant_Postprocessing_Functions to Classification_Utils
+
 ## Classification.ipynb
 * Code to load and pre-process data
 * Train and test various classifiers
