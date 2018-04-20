@@ -1,7 +1,7 @@
 # Proteomics_Data_Processing
 
 ## TODO:
-* Clean up utility functions in .py files, removing things not used for classification and moving relevant functions from MaxQuant_Postprocessing_Functions to Classification_Utils
+* Clean up utility functions in .py files, removing things not used for classification and moving relevant functions from MaxQuant_Postprocessing_Functions to Classification_Utils or new file called 'Plotting_Utils'
 
 ## Classification.ipynb
 * Code to load and pre-process data
