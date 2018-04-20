@@ -13,3 +13,6 @@
 ## MaxQuant_Postprocessing_Functions.py
 * Contains functions for MaxQuant output postprocessing and graph generation
 * Includes function to run file through entire pipeline
+
+## PCA_Plotting.ipynb
+* Code to produce PCA plots for train and test data, as well as a plot showing diseased samples as open circles
