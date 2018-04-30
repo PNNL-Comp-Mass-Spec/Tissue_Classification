@@ -1,5 +1,7 @@
 # Proteomics_Data_Processing
 
+These are iPython notebooks that were used in a manuscript exploring the classification of human tissues via proteomics data.
+
 ## TODO:
 * Clean up utility functions in .py files, removing things not used for classification and moving relevant functions from MaxQuant_Postprocessing_Functions to Classification_Utils or new file called 'Plotting_Utils'
 
