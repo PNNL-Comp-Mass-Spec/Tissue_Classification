@@ -155,7 +155,7 @@ Returns:
     Prints mean cross-validation score and 95% confidence interval
 """
 def logistic_regression_model_crossval(data, labels, num_splits, scoring='accuracy'):
-    lr = LogisticRegression()
+    lr = LogisticRegression(random_state=0)
     return fit_model(lr, data, labels, num_splits, scoring)
 
 
@@ -172,10 +172,10 @@ Returns:
 """
 def SVC_models_crossval(data, labels, num_splits, scoring='accuracy'):
     C = 1.0  # SVM regularization parameter
-    models = (SVC(kernel='linear', C=C, probability=True),
-              LinearSVC(C=C),
-              SVC(kernel='rbf', gamma=0.7, C=C, probability=True),
-              SVC(kernel='poly', degree=3, C=C, probability=True))
+    models = (SVC(kernel='linear', C=C, probability=True, random_state=0),
+              LinearSVC(C=C, random_state=0),
+              SVC(kernel='rbf', gamma=0.7, C=C, probability=True, random_state=0),
+              SVC(kernel='poly', degree=3, C=C, probability=True, random_state=0))
 
     # Fit all the models
     models = (fit_model(clf, data, labels, num_splits, scoring) for clf in models)
@@ -195,7 +195,7 @@ Returns:
     Prints mean cross-validation score and 95% confidence interval
 """
 def gradient_boosting_crossval(data, labels, num_splits, scoring='accuracy'):
-    gbc = GradientBoostingClassifier()
+    gbc = GradientBoostingClassifier(random_state=0)
     return fit_model(gbc, data, labels, num_splits, scoring)
 
 
