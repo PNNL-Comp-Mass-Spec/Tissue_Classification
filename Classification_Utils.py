@@ -494,6 +494,31 @@ def get_labels(columns, organ_to_columns):
 
 """
 Args:
+    df (dataframe)
+    min_samples (int)
+    min_tissues (int)
+    max_tissues (int)
+    tissues (list of strings)
+    imputed_val (int): impute value for non-observed peptides in df
+    
+Returns:
+    df filtered to only contain peptides present in at least min_samples samples of a single tissue, for a number of tissues specified by min_tissues and max_tissues
+"""
+def filter_peptides_by_samples_and_tissues(df, min_samples, min_tissues, max_tissues, tissues, imputed_val):
+    df_cols = df.columns.values.tolist()
+    organ_counts = {}
+    
+    for tissue in tissues:
+        cols = [col for col in df_cols if col.startswith(tissue)] # Get corresponding list of column names
+        organ_counts[tissue] = (df[cols] != imputed_val).sum(1) # count number of samples with non-imputed abundance for each protein
+
+    tallys = 1 * (organ_counts['CSF'] >= min_samples) + 1 * (organ_counts['Blood_Plasma'] >= min_samples) + 1 * (organ_counts['Blood_Serum'] >= min_samples) + 1 * (organ_counts['Liver'] >= min_samples) + 1 * (organ_counts['Pancreas'] >= min_samples) + 1 * (organ_counts['Monocyte'] >= min_samples) + 1 * (organ_counts['Ovary'] >= min_samples) + 1 * (organ_counts['Temporal_Lobe'] >= min_samples) + 1 * (organ_counts['Substantia_Nigra'] >= min_samples) 
+
+    new_df = df[(tallys >= min_tissues) & (tallys <= max_tissues)]
+    return new_df
+
+"""
+Args:
     df (dataframe): rows are peptide/proteins, columns are samples, data = abundance values
     
 Returns:
