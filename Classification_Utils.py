@@ -512,7 +512,10 @@ def filter_peptides_by_samples_and_tissues(df, min_samples, min_tissues, max_tis
         cols = [col for col in df_cols if col.startswith(tissue)] # Get corresponding list of column names
         organ_counts[tissue] = (df[cols] != imputed_val).sum(1) # count number of samples with non-imputed abundance for each protein
 
-    tallys = 1 * (organ_counts['CSF'] >= min_samples) + 1 * (organ_counts['Blood_Plasma'] >= min_samples) + 1 * (organ_counts['Blood_Serum'] >= min_samples) + 1 * (organ_counts['Liver'] >= min_samples) + 1 * (organ_counts['Pancreas'] >= min_samples) + 1 * (organ_counts['Monocyte'] >= min_samples) + 1 * (organ_counts['Ovary'] >= min_samples) + 1 * (organ_counts['Temporal_Lobe'] >= min_samples) + 1 * (organ_counts['Substantia_Nigra'] >= min_samples) 
+    #tallys = 1 * (organ_counts['CSF'] >= min_samples) + 1 * (organ_counts['Blood_Plasma'] >= min_samples) + 1 * (organ_counts['Blood_Serum'] >= min_samples) + 1 * (organ_counts['Liver'] >= min_samples) + 1 * (organ_counts['Pancreas'] >= min_samples) + 1 * (organ_counts['Monocyte'] >= min_samples) + 1 * (organ_counts['Ovary'] >= min_samples) + 1 * (organ_counts['Temporal_Lobe'] >= min_samples) + 1 * (organ_counts['Substantia_Nigra'] >= min_samples) 
+    tallys = 1 * (organ_counts[tissues[0]] >= min_samples)
+    for t in tissues[1:]:
+        tallys += 1 * (organ_counts[t] >= min_samples)
 
     new_df = df[(tallys >= min_tissues) & (tallys <= max_tissues)]
     return new_df
