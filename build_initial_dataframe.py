@@ -8,7 +8,9 @@ import sys
 Usage:
 build_initial_dataframe.py file_directory '[Tissue_1, Tissue_2 ...]' file_title
 
-Directory contents: one tab separated text file per tissue, containing abundance values for all datasets. The first column name is Peptide, and the rest of the column names are the names of each dataset prefixed with the tissue (e.g. Blood\_Plasma\_[dataset name])
+Directory contents: one tab separated text file per tissue, containing abundance values for all datasets. The first column name is Peptide, and the rest of the column names are the names of each dataset prefixed with the tissue (e.g. Blood_Plasma_[dataset name])
+
+If no arguments given, defaults are used. Defaults point to the main train and test data used in these experiments.
 """
 
 def combine_csvs(file_dir, file_paths):
@@ -59,7 +61,8 @@ file_paths = listdir(files_dir)
 df = combine_csvs(files_dir, file_paths)
 
 df.dropna(axis='index', how='all', inplace=True) # drop any rows where all values are missing
-df = df.drop(['\n']) # drop extra newline characters
+if '\n' in df.index:
+    df = df.drop(['\n']) # drop extra newline characters in index
 
 ### Transform and Normalize
 df.iloc[:,:] = np.log2(df.iloc[:,:]) # log2 transform
