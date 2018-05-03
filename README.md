@@ -29,7 +29,7 @@ These are iPython notebooks that were used in a manuscript exploring the classif
 ## build_initial_dataframe.py
 * Script to create dataframes
 * Ensures all dataframes go through the same cleaning and transformation steps:
- *Log2 transform
- *Impute missing values
- *Remove peptides not observed in at least 5 samples in at least 1 tissue
+ * Log2 transform
+ * Impute missing values
+ * Remove peptides not contained in at least 5 samples of at least 1 tissue
  * Median normalize
