@@ -5,7 +5,8 @@ import pandas as pd
 import sys
 
 """
-build_initial_dataframe.py file_directory '[Tissue_1, Tissue_2 ...]'
+Usage:
+build_initial_dataframe.py file_directory '[Tissue_1, Tissue_2 ...]' file_title
 
 Directory contents: one tab separated text file per tissue, containing abundance values for all datasets. The first column name is Peptide, and the rest of the column names are the names of each dataset prefixed with the tissue (e.g. Blood\_Plasma\_[dataset name])
 """
@@ -81,4 +82,6 @@ median_of_medians = df.median().median()
 df /= df.median(axis=0) # divide each value by sample median
 df *= median_of_medians # multiply each value by the median of medians
 
-df.to_csv('FullPeptideQuant.txt', sep='\t', line_terminator='\r')
+result_name = sys.argv[3] if len(sys.argv) > 3 else 'FullPeptideQuant.txt'
+
+df.to_csv(result_name, sep='\t', line_terminator='\r')
