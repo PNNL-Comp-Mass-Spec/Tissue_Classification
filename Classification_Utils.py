@@ -158,6 +158,21 @@ def logistic_regression_model_crossval(data, labels, num_splits, scoring='accura
     lr = LogisticRegression(random_state=0)
     return fit_model(lr, data, labels, num_splits, scoring)
 
+"""
+Args:
+    data (dataframe): contains all data that will be used to fit the model
+    labels (list of strings): corresponding labels for each row of data
+    num_splits (int): number of train-test splits to test
+    scoring (string, optional): scoring method. Defaults to accuracy score
+
+Returns:
+    SVC model fitted on all inputted data
+    Prints mean cross-validation score and 95% confidence interval
+"""
+def SVC_model_crossval(data, labels, num_splits, scoring='accuracy'):
+    svc = SVC(kernel='linear', probability=True, random_state=0)
+    return fit_model(svc, data, labels, num_splits, scoring)
+
 
 """
 Args:
@@ -167,7 +182,7 @@ Args:
     scoring (string, optional): scoring method. Defaults to accuracy score
 
 Returns:
-    List of SVC classification models fitted on all inputted data
+    List of SVC classification models with various kernels fitted on all inputted data
     Prints mean cross-validation scores and 95% confidence intervals
 """
 def SVC_models_crossval(data, labels, num_splits, scoring='accuracy'):
@@ -512,7 +527,6 @@ def filter_peptides_by_samples_and_tissues(df, min_samples, min_tissues, max_tis
         cols = [col for col in df_cols if col.startswith(tissue)] # Get corresponding list of column names
         organ_counts[tissue] = (df[cols] != imputed_val).sum(1) # count number of samples with non-imputed abundance for each protein
 
-    #tallys = 1 * (organ_counts['CSF'] >= min_samples) + 1 * (organ_counts['Blood_Plasma'] >= min_samples) + 1 * (organ_counts['Blood_Serum'] >= min_samples) + 1 * (organ_counts['Liver'] >= min_samples) + 1 * (organ_counts['Pancreas'] >= min_samples) + 1 * (organ_counts['Monocyte'] >= min_samples) + 1 * (organ_counts['Ovary'] >= min_samples) + 1 * (organ_counts['Temporal_Lobe'] >= min_samples) + 1 * (organ_counts['Substantia_Nigra'] >= min_samples) 
     tallys = 1 * (organ_counts[tissues[0]] >= min_samples)
     for t in tissues[1:]:
         tallys += 1 * (organ_counts[t] >= min_samples)
@@ -565,7 +579,6 @@ Returns:
 def fit_new_data(original_df, new_df, features_to_keep=None):
 
     fitted_data = original_df.join(new_df)
-    #fitted_data = original_df.drop(original_df.columns[:], axis=1).join(new_df)
     
     fitted_data.iloc[:,:] = np.log2(fitted_data.iloc[:,:])
     fitted_data.replace([np.inf, -np.inf], np.nan, inplace=True)
@@ -575,7 +588,6 @@ def fit_new_data(original_df, new_df, features_to_keep=None):
     median_of_medians = fitted_data.median().median()
     fitted_data /= fitted_data.median(axis=0) # divide each value by sample median
     fitted_data *= median_of_medians
-    #fitted_data.iloc[:,:] = RobustScaler().fit_transform(fitted_data)
     
     fitted_data.drop(original_df.columns, axis=1, inplace=True)
     
