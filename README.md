@@ -25,10 +25,6 @@ These are iPython notebooks and associated scripts that were used in a manuscrip
 ### Classification_Utils.py
 * Contains utility functions to perform basic classification processes, including cross-validation and grid searches
 
-### MaxQuant_Postprocessing_Functions.py
-* Contains functions for MaxQuant output postprocessing and graph generation
-* Includes function to run file through entire pipeline
-
 ### build_initial_dataframe.py
 * Script to create dataframes
 * Ensures all dataframes go through the same cleaning and transformation steps:
