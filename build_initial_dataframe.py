@@ -29,15 +29,15 @@ def combine_csvs(file_dir, file_paths):
 
 def filter_peptides_by_samples_and_tissues(df, min_samples, min_tissues, max_tissues, tissues, missing_val):
     df_cols = df.columns.values.tolist()
-    organ_counts = {}
+    counts = {}
     
     for tissue in tissues:
-        cols = [col for col in df_cols if col.startswith(tissue)] # Get corresponding list of column names
-        organ_counts[tissue] = (df[cols] != missing_val).sum(1) # count number of samples with non-imputed abundance for each protein
+        cols = [col for col in df_cols if tissue in col] # Get corresponding list of column names
+        counts[tissue] = (df[cols] != missing_val).sum(1) # count number of samples with non-imputed abundance for each protein
 
-    tallys = 1 * (organ_counts[tissues[0]] >= min_samples)
+    tallys = 1 * (counts[tissues[0]] >= min_samples)
     for t in tissues[1:]:
-        tallys += 1 * (organ_counts[t] >= min_samples)
+        tallys += 1 * (counts[t] >= min_samples)
 
     new_df = df[(tallys >= min_tissues) & (tallys <= max_tissues)]
     return new_df
