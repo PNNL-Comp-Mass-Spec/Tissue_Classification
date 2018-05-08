@@ -2,8 +2,6 @@
 
 These are iPython notebooks and associated scripts that were used in a manuscript exploring the classification of human tissues via proteomics data. There are a variety of notebooks which are used to make figures for the manuscript. Each starts from the same basic dataframe. Therefore, the repository should be fairly self-contained, with this df as a starting point.
 
-## TODO:
-* Clean up utility functions in .py files, removing things not used for classification and moving relevant functions from MaxQuant_Postprocessing_Functions to Classification_Utils or new file called 'Plotting_Utils'
 
 ## Notebooks - used to make figures in the manuscript
 ### Classification.ipynb
