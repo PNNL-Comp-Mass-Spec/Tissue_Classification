@@ -4,6 +4,10 @@ These are iPython notebooks and associated scripts that were used in a manuscrip
 
 
 ## Notebooks - used to make figures in the manuscript
+
+### Model_Finalization notebooks
+* Feature selection and classifier parameter tuning
+
 ### Classification.ipynb
 * Code to load and pre-process data
 * Train and test various classifiers. The goal of these classifiers is to see whether we can correctly predict the source tissue of a proteomics sample.
@@ -18,8 +22,6 @@ These are iPython notebooks and associated scripts that were used in a manuscrip
 * Code corresponding to 'Minimal Classifiers'
 * Testing how classifiers perform on test data, with low abundance peptides removed
 
-### Model_Finalization notebooks
-* Feature selection and classifier parameter tuning
 
 ## Auxiliary Scripts
 ### Classification_Utils.py
