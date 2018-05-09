@@ -18,6 +18,8 @@ These are iPython notebooks and associated scripts that were used in a manuscrip
 * Code corresponding to 'Minimal Classifiers'
 * Testing how classifiers perform on test data, with low abundance peptides removed
 
+### Model_Finalization notebooks
+* Feature selection and classifier parameter tuning
 
 ## Auxiliary Scripts
 ### Classification_Utils.py
