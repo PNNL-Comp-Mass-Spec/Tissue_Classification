@@ -12,6 +12,9 @@ These are iPython notebooks and associated scripts that were used in a manuscrip
 * Code to load and pre-process data
 * Train and test various classifiers. The goal of these classifiers is to see whether we can correctly predict the source tissue of a proteomics sample.
 
+### Cohort_Sizes.ipynb
+* Classifying blood plasma and serum with increasingly larger training sets
+
 ### PCA_Plotting.ipynb
 * Code to produce PCA plots for train and test data, as well as a plot showing diseased samples as open circles
 
