@@ -34,7 +34,7 @@ def filter_peptides_by_samples_and_tissues(df, min_samples, min_tissues, max_tis
     for tissue in tissues:
         cols = [col for col in df_cols if tissue in col] # Get corresponding list of column names
         counts[tissue] = (df[cols] != missing_val).sum(1) # count number of samples with non-imputed abundance for each protein
-
+        
     tallys = 1 * (counts[tissues[0]] >= min_samples)
     for t in tissues[1:]:
         tallys += 1 * (counts[t] >= min_samples)
@@ -55,7 +55,7 @@ def map_tissues_to_columns(df, list_of_tissues):
 
 ### Load the data
 
-files_dir = sys.argv[1] if len(sys.argv) > 1 else 'F:\High_Quality_All\\'
+files_dir = sys.argv[1] + '\\' if len(sys.argv) > 1 else 'F:\High_Quality_All\\'
 file_paths = listdir(files_dir) 
 
 df = combine_csvs(files_dir, file_paths)
@@ -86,5 +86,4 @@ df /= df.median(axis=0) # divide each value by sample median
 df *= median_of_medians # multiply each value by the median of medians
 
 result_name = sys.argv[3] if len(sys.argv) > 3 else 'FullPeptideQuant.txt'
-
 df.to_csv(result_name, sep='\t', line_terminator='\r')
