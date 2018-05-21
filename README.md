@@ -7,6 +7,7 @@ These are iPython notebooks and associated scripts that were used in a manuscrip
 
 ### Model_Finalization notebooks
 * Feature selection and classifier parameter tuning
+* Trained_Models directory contains the compressed finalized models, which can be loaded directly into a notebook. This way the finalized models can be used without running the grid searches, which are time-intensive.
 
 ### Classification.ipynb
 * Code to load and pre-process data
