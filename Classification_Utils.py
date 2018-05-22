@@ -8,35 +8,17 @@ import numpy as np
 import pandas as pd
 import re
 from sklearn import tree
-from sklearn.decomposition import PCA, NMF
-from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.decomposition import PCA
 from sklearn.ensemble import ExtraTreesClassifier, GradientBoostingClassifier, RandomForestClassifier
-from sklearn.feature_selection import RFECV, SelectFromModel, SelectKBest, SelectPercentile
+from sklearn.feature_selection import SelectKBest, SelectPercentile
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, confusion_matrix
-from sklearn.model_selection import cross_val_predict, cross_val_score, GridSearchCV, StratifiedShuffleSplit
+from sklearn.model_selection import cross_val_predict, cross_val_score, StratifiedShuffleSplit
 from sklearn.naive_bayes import GaussianNB, MultinomialNB
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.neural_network import MLPClassifier
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import RobustScaler
 from sklearn.svm import LinearSVC, SVC
 
-#########################
-#
-# Constants
-#
-#########################
-
-ESTIMATORS = [RandomForestClassifier(), 
-              ExtraTreesClassifier(), 
-              LinearSVC(C=0.01, penalty="l1", dual=False)]
-C_OPTIONS = [.01, .1, 1, 10, 100, 1000]
-MIN_SAMPLES_SPLIT = [2, 3, 4, 5, 10]
-N_ESTIMATORS = [25, 50, 100, 200]
-N_FEATURES_OPTIONS = [2, 4, 6, 8]
-K_FEATURES_OPTIONS = [10, 100, 1000]
-PERCENTILE_OPTIONS = [25, 50, 75, 100]
 
 #########################
 #
@@ -253,187 +235,6 @@ def show_prediction_probabilities(model, data, idx):
     for prob in zip(classes, pred_probabilities[idx]):
         print(prob[0], ':', prob[1])
     
-    
-#########################
-#
-# Grid Searches for Classifier hyperparameter tuning
-# 
-# Each grid search finds the best combination of dimensionality reduction and classification parameters for a given model
-#
-#########################
-
-"""
-Args:
-    cv (int): Number of cross-validation folds
-    n_jobs(int): Number of jobs to run in parallel
-    
-Returns:
-    GridSearchCV: sklearn.model_selection.GridSearchCV instance for SVC classification variations; attributes include best_estimator_, best_score_, and best_params_
-"""
-def svc_grid_search(cv, n_jobs, scoring=None):
-
-    KERNELS = ['linear', 'rbf', 'poly']
-    GAMMAS = [0.001, 0.01, 0.1, 1]
-
-    svc_grid = {
-            'classify__C': C_OPTIONS,
-            'classify__kernel': ['linear'],
-            #'classify__gamma': GAMMAS
-    }
-
-    return grid_search(cv, n_jobs, SVC(probability=True), svc_grid, scoring=scoring)
-    
-"""
-Args:
-    cv (int): Number of cross-validation folds
-    n_jobs(int): Number of jobs to run in parallel
-    
-Returns:
-    GridSearchCV: sklearn.model_selection.GridSearchCV instance for KNN variations; attributes include best_estimator_, best_score_, and best_params_
-"""
-def knn_grid_search(cv, n_jobs, scoring=None):
-
-    N_NEIGHBORS = [1, 3, 5, 10, 20]
- 
-    knn_grid = {
-            'classify__n_neighbors': N_NEIGHBORS
-    }
-
-    return grid_search(cv, n_jobs, KNeighborsClassifier(), knn_grid, scoring=scoring)
-
-"""
-Args:
-    cv (int): Number of cross-validation folds
-    n_jobs(int): Number of jobs to run in parallel
-    
-Returns:
-    GridSearchCV: sklearn.model_selection.GridSearchCV instance for LR variations; attributes include best_estimator_, best_score_, and best_params_
-"""
-def lr_grid_search(cv, n_jobs, scoring=None):
-
-    SOLVERS = ['sag', 'saga']
- 
-    lr_grid = {
-            'classify__solver': SOLVERS,
-            'classify__C': C_OPTIONS
-    }
-
-    return grid_search(cv, n_jobs, LogisticRegression(), lr_grid, scoring=scoring)
-
-"""
-Args:
-    cv (int): Number of cross-validation folds
-    n_jobs(int): Number of jobs to run in parallel
-    
-Returns:
-    GridSearchCV: sklearn.model_selection.GridSearchCV instance for Multinomial Naive Bayes variations; attributes include best_estimator_, best_score_, and best_params_
-"""
-def mnb_grid_search(cv, n_jobs, scoring=None):
-
-    ALPHAS = [1, 0.1, 0.01, 0.001, 0.0001, 0.00001]
- 
-    mnb_grid = {
-            'classify__alpha': ALPHAS
-    }
-
-    return grid_search(cv, n_jobs, MultinomialNB(), mnb_grid, scoring=scoring)
-
-"""
-Args:
-    cv (int): Number of cross-validation folds
-    n_jobs(int): Number of jobs to run in parallel
-    
-Returns:
-    GridSearchCV: sklearn.model_selection.GridSearchCV instance for RandomForest variations; attributes include best_estimator_, best_score_, and best_params_
-"""
-def rf_grid_search(cv, n_jobs, scoring=None):
-    
-    MAX_FEATURES = ['auto', 'sqrt', 'log2']
-    
-    rf_grid = {
-            'classify__n_estimators': N_ESTIMATORS,
-            'classify__min_samples_split': MIN_SAMPLES_SPLIT,
-            'classify__max_features': MAX_FEATURES
-    }
-    
-    return grid_search(cv, n_jobs, RandomForestClassifier(), rf_grid, scoring=scoring)
-
-
-"""
-Args:
-    cv (int): Number of cross-validation folds
-    n_jobs(int): Number of jobs to run in parallel
-    
-Returns:
-    GridSearchCV: sklearn.model_selection.GridSearchCV instance for GradientBoostingClassifier variations; attributes include best_estimator_, best_score_, and best_params_
-"""
-def gbc_grid_search(cv, n_jobs, scoring=None):
-    
-    MAX_DEPTH = range(5,16,3)
-    
-    gbc_grid = {
-            'classify__n_estimators': N_ESTIMATORS,
-            'classify__min_samples_split': MIN_SAMPLES_SPLIT,
-            'classify__max_depth': MAX_DEPTH 
-    }
-    
-    return grid_search(cv, n_jobs, GradientBoostingClassifier(), gbc_grid, scoring=scoring)
-
-
-"""
-Args:
-    cv (int): Number of cross-validation folds
-    n_jobs(int): Number of jobs to run in parallel
-    
-Returns:
-    GridSearchCV: sklearn.model_selection.GridSearchCV instance for MLPClassifier variations; attributes include best_estimator_, best_score_, and best_params_
-"""
-def mlp_grid_search(cv, n_jobs, scoring=None):
-    
-    mlp_grid = {
-        'classify__hidden_layer_sizes': [(10,), (100,), (500,), (1000,)],
-        'classify__tol': [1e-2, 1e-3, 1e-4, 1e-5, 1e-6],
-        #'classify__epsilon': [1e-3, 1e-7, 1e-8, 1e-9, 1e-8],
-        #'classify__activation': ['identity', 'logistic', 'tanh', 'relu'],
-        'classify__max_iter': [300, 500],
-        'classify__solver': ['lbfgs', 'sgd', 'adam']
-    }
-    
-    return grid_search(cv, n_jobs, MLPClassifier(), mlp_grid, scoring=scoring)
-
-"""
-General grid_search function called by all specific grid searches
-"""
-def grid_search(cv, n_jobs, model, model_grid, scoring=None):
-    pipe = Pipeline([
-        ('reduce_dim', PCA()),
-        ('classify', model)])
-    
-    param_grid = [
-        {
-            'reduce_dim': [PCA()], 
-            'reduce_dim__n_components': N_FEATURES_OPTIONS,
-        },
-#        {
-#            'reduce_dim': [SelectKBest()],
-#            'reduce_dim__k': K_FEATURES_OPTIONS,
-#        },
-        {
-            'reduce_dim': [SelectPercentile()],
-            'reduce_dim__percentile': PERCENTILE_OPTIONS,
-        },
-#        {
-#            'reduce_dim': [SelectFromModel(RandomForestClassifier())],
-#            'reduce_dim__estimator': [*ESTIMATORS],
-#        },
-    ]
-    
-    for feature_grid in param_grid:
-        feature_grid.update(model_grid)
-
-    grid = GridSearchCV(pipe, cv=cv, n_jobs=n_jobs, param_grid=param_grid, scoring=scoring)
-    return grid
-
 
 #########################
 #
