@@ -6,7 +6,7 @@ import sys
 
 """
 Usage:
-build_initial_dataframe.py file_directory '[Tissue_1, Tissue_2 ...]' file_title
+build_initial_dataframe.py file_directory "['Tissue_1', 'Tissue_2' ...]" file_name.txt
 
 Directory contents: one tab separated text file per tissue, containing abundance values for all datasets. The first column name is Peptide, and the rest of the column names are the names of each dataset prefixed with the tissue (e.g. Blood_Plasma_[dataset name])
 
