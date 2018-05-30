@@ -16,8 +16,9 @@ These are iPython notebooks and associated scripts that were used in a manuscrip
 ### Cohort_Sizes.ipynb
 * Classifying blood plasma and serum with increasingly larger training sets
 
-### PCA_Plotting.ipynb
-* Code to produce PCA plots for train and test data, as well as a plot showing diseased samples as open circles
+### tSNE_PCA.ipynb
+* Code to produce tSNE and PCA plots for train and test data
+* Includes plots showing diseased samples as open circles, and plots with cell line datasets
 
 ### Peptide_Boxplots.ipynb
 * Analysis of peptide variability across tissues. Used to create a figure displaying the distinct expression patterns of four archetypal peptides.
