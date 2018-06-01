@@ -1,6 +1,6 @@
 # Tissue_Classification
 
-These are iPython notebooks and associated scripts that were used in a manuscript exploring the classification of human tissues via proteomics data. There are a variety of notebooks which are used to make figures for the manuscript. Each starts from the same basic dataframe. Therefore, the repository should be fairly self-contained, with this df as a starting point.
+These are iPython notebooks and associated scripts that were used in a manuscript exploring the classification of human tissues via proteomics data. There are a variety of notebooks which are used to make figures for the manuscript. Each starts from the same basic dataframe. Therefore, the repository should be fairly self-contained, with this df as a starting point. See requirements.txt for required software packages and versions.
 
 
 ## Notebooks - used to make figures in the manuscript
