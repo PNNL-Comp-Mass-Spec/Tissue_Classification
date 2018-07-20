@@ -4,6 +4,7 @@ These are iPython notebooks and associated scripts that were used in a manuscrip
 
 
 ## Notebooks - used to make figures in the manuscript
+Please upzip FullPeptideQuant.txt.zip in your local repository to reproduce all the results.
 
 ### Model_Finalization notebooks
 * Feature selection and classifier parameter tuning
