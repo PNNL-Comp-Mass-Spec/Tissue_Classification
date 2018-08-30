@@ -399,6 +399,13 @@ def fit_new_data(original_df, new_df, features_to_keep=None):
     
     return fitted_data
 
+"""
+Transforms dataframe values to 0 or 1 to represent presence/absence
+"""
+def abundance_to_binary(df):
+    mode = df.mode().iloc[0,0]
+    df = df.applymap(lambda x: 0 if x==mode else 1)
+    return df
 
 #########################
 #
