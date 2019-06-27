@@ -1,5 +1,7 @@
 # Tissue_Classification
 
+This is the repository for computational methods associated with the paper "Individual Variability of Protein Expression in Human Tissues" which can be found at https://www.ncbi.nlm.nih.gov/pubmed/30300549.
+
 These are iPython notebooks and associated scripts that were used in a manuscript exploring the classification of human tissues via proteomics data. There are a variety of notebooks which are used to make figures for the manuscript. Each starts from the same basic dataframe. Therefore, the repository should be fairly self-contained, with this df as a starting point. See requirements.txt for required software packages and versions.
 
 
