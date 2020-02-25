@@ -137,7 +137,7 @@ Returns:
     Prints mean cross-validation score and 95% confidence interval
 """
 def logistic_regression_model_crossval(data, labels, num_splits, scoring='accuracy'):
-    lr = LogisticRegression(random_state=0)
+    lr = LogisticRegression(random_state=0, solver='liblinear', multi_class='ovr')
     return fit_model(lr, data, labels, num_splits, scoring)
 
 """
