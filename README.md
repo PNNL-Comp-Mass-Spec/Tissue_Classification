@@ -5,6 +5,21 @@ This is the repository for computational methods associated with the paper "Indi
 These are iPython notebooks and associated scripts that were used in a manuscript exploring the classification of human tissues via proteomics data. There are a variety of notebooks which are used to make figures for the manuscript. Each starts from the same basic dataframe. Therefore, the repository should be fairly self-contained, with this df as a starting point. See requirements.txt for required software packages and versions.
 
 
+## How to use
+1. Install python. Python3+ and anaconda recommended. Please refer to https://www.anaconda.com/distribution/.
+2. Create an environment from an environment.yml file. It will create a new environment called `tissue_classify`.
+```bash
+conda env create -f environment.yml
+```
+3. Activate the new environment.
+```bash
+conda activate tissue_classify
+```
+4. Open jupyter notebooks.
+```bash
+jupyter lab
+```
+
 ## Notebooks - used to make figures in the manuscript
 Please upzip FullPeptideQuant.txt.zip in your local repository to reproduce all the results.
 
